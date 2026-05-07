@@ -10,7 +10,7 @@ const captionStyles = [
   { id: 'MINIMAL', name: 'Minimalist', example: 'Clean and simple captions', bg: '#ffffff', color: '#64748b' }
 ];
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const voices = [
   // --- NATURAL (Edge-TTS) ---
