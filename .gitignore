@@ -1,0 +1,45 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Project specific
+node_modules/
+server/node_modules/
+server/output/
+server/background_clips/
+server/test_assets/
+server/temp/
+server/piper/
+*.zip
+*.json_db
+server/projects_db.json
+server/keys_db.json
+server/social_db.json
+server/series_db.json
+server/scout_db.json
+server/upload_history.json
+server/history.json
+.env
+.env.*
+

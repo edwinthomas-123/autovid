@@ -1,0 +1,29 @@
+services:
+  backend:
+    build: 
+      context: ./server
+    container_name: autovid-backend
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server/projects_db.json:/app/projects_db.json
+      - ./server/keys_db.json:/app/keys_db.json
+      - ./server/social_db.json:/app/social_db.json
+      - ./server/series_db.json:/app/series_db.json
+      - ./server/scout_db.json:/app/scout_db.json
+      - ./server/output:/app/output
+      - ./server/test_assets:/app/test_assets
+    environment:
+      - BASE_URL=http://187.127.163.252:3001
+      - PORT=3001
+    restart: unless-stopped
+
+  frontend:
+    build: 
+      context: .
+    container_name: autovid-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
