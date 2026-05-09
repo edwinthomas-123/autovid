@@ -606,7 +606,7 @@ app.post('/api/clip', async (req, res) => {
       const outputFilenameBase = `clip_${timestamp}.mp4`;
       const outputPathBase = path.join(OUTPUT_DIR, outputFilenameBase);
 
-      const pythonProcess = spawn('python', [
+      const pythonProcess = spawn('python3', [
         path.join(__dirname, 'processor.py'),
         url, style, outputPathBase, clipCount, captionSize || 32, captionPosition || 'center'
       ]);
@@ -1120,7 +1120,7 @@ app.post(['/api/long-video', '/api/short-video'], async (req, res) => {
         
         // Download the rendered video to our local output dir
         await downloadFile(renderUrl, outputPath);
-        videoUrl = `http://localhost:3001/output/${outputFilename}`;
+        videoUrl = `${BASE_URL}/output/${outputFilename}`;
         
       } else {
         // Fallback to Python/FFmpeg
@@ -1155,13 +1155,13 @@ app.post(['/api/long-video', '/api/short-video'], async (req, res) => {
             else reject(new Error(`Renderer exited ${code}: ${stderr}`));
           });
         });
-        videoUrl = `http://localhost:3001/output/${outputFilename}`;
+        videoUrl = `${BASE_URL}/output/${outputFilename}`;
       }
 
       const result = {
         success: true,
         videoUrl,
-        audioUrl: `http://localhost:3001/output/job_${timestamp}/narration.mp3`,
+        audioUrl: `${BASE_URL}/output/job_${timestamp}/narration.mp3`,
         clips: clipUrls
       };
 
@@ -2030,7 +2030,7 @@ app.post('/api/scout/run', async (req, res) => {
             const outputPath = path.join(OUTPUT_DIR, outputFilename);
 
             await new Promise((resolve, reject) => {
-                const py = spawn('python', [
+                const py = spawn('python3', [
                     path.join(__dirname, 'scout_renderer.py'),
                     recordingPath, audioPath, outputPath, analysis.voiceover
                 ]);
@@ -2042,7 +2042,7 @@ app.post('/api/scout/run', async (req, res) => {
                 });
             });
 
-            const finalUrl = `http://localhost:3001/output/${outputFilename}`;
+            const finalUrl = `${BASE_URL}/output/${outputFilename}`;
             
             // Save to projects
             const project = {

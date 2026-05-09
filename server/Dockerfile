@@ -1,6 +1,6 @@
 FROM node:20-slim
 
-# Install system dependencies
+# Install system dependencies for Playwright, OpenCV, and Audio
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
@@ -21,6 +21,12 @@ RUN apt-get update && apt-get install -y \
     libasound2 \
     libpangocairo-1.0-0 \
     libgtk-3-0 \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    fonts-noto \
+    fonts-freefont-ttf \
+    fonts-liberation \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -31,14 +37,19 @@ RUN npm install
 
 # Copy requirements and install python deps
 COPY requirements.txt ./
-# We use --break-system-packages if needed for newer python, or just pip install
 RUN pip3 install --no-cache-dir -r requirements.txt --break-system-packages || pip3 install --no-cache-dir -r requirements.txt
 
-# Install Playwright browsers
+# Install Playwright browsers (Chromium only)
 RUN npx playwright install chromium
+
+# Pre-download Whisper models (tiny and base) to avoid download at runtime
+RUN python3 -c "import whisper; whisper.load_model('tiny'); whisper.load_model('base')"
 
 # Copy application files
 COPY . .
+
+# Ensure output directory exists and is writable
+RUN mkdir -p output background_clips music sfx && chmod -R 777 output background_clips music sfx
 
 EXPOSE 3001
 

@@ -121,7 +121,7 @@ class ScheduledAutomationEngine {
                 
                 // Call processor.py (clipper)
                 await new Promise((resolve, reject) => {
-                    const py = spawn('python', [
+                    const py = spawn('python3', [
                         path.join(__dirname, 'processor.py'),
                         videoUrl, 'MRBEAST', outputPath, '1', '38', 'center'
                     ]);
@@ -183,7 +183,7 @@ class ScheduledAutomationEngine {
 
                     // Call talking_head_renderer.py
                     await new Promise((resolve, reject) => {
-                        const py = spawn('python', [
+                        const py = spawn('python3', [
                             path.join(__dirname, 'talking_head_renderer.py'),
                             audioPath, bgPath, '[]', outputPath, 'MRBEAST', fullText, charImg
                         ]);

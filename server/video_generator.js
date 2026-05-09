@@ -469,7 +469,7 @@ async function renderVideo({ script, voice, captionStyle, elevenLabsKey, pexelsK
     ];
     if (selectedMusic) pyArgs.push(selectedMusic);
 
-    const py = spawn('python', pyArgs);
+    const py = spawn('python3', pyArgs);
     let stderr = '';
     py.stderr.on('data', d => stderr += d.toString());
     py.on('close', code => {
@@ -561,7 +561,7 @@ async function generateBulkMetaVideos({ script, theme, niche, style, elevenLabsK
             audioPath, clipListPath, outputPath, 'HORMOZI', script.substring(0, 2000), 'portrait', '38', 'center'
         ];
         if (selectedMusic) pyArgs.push(selectedMusic);
-        const py = spawn('python', pyArgs);
+        const py = spawn('python3', pyArgs);
         py.on('close', code => code === 0 ? resolve() : reject(new Error(`Renderer failed: ${code}`)));
     });
 

@@ -62,7 +62,7 @@ async function generateVideo(prompt, browserInstance = null) {
         if (!browserInstance) await browser.close();
         return {
             success: true,
-            videoUrl: `http://localhost:3001/output/${filename}`,
+            videoUrl: `/output/${filename}`,
             outputPath,
             filename
         };
