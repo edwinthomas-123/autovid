@@ -24,9 +24,59 @@ const scheduledAutomationEngine = require('./scheduled_automation_engine');
 const { recordToolDemo } = require('./recorder');
 const { renderWithCreatomate } = require('./creatomate_renderer');
 const { sendVideoEmail } = require('./email_helper');
+const cron = require('node-cron');
 automationEngine.start();
 seriesEngine.start();
 scheduledAutomationEngine.start();
+
+// --- 24-HOUR FILE MANAGEMENT (The Janitor) ---
+cron.schedule('0 * * * *', () => {
+    console.log('[JANITOR] Running 24-hour cleanup...');
+    const dirs = [
+        path.join(__dirname, 'output'),
+        path.join(__dirname, 'background_clips')
+    ];
+    
+    // Also cleanup temp_ directories
+    const rootFiles = fs.readdirSync(__dirname);
+    rootFiles.forEach(f => {
+        if (f.startsWith('temp_') && fs.statSync(path.join(__dirname, f)).isDirectory()) {
+            dirs.push(path.join(__dirname, f));
+        }
+    });
+
+    const now = Date.now();
+    const expiry = 24 * 60 * 60 * 1000; // 24 hours
+
+    dirs.forEach(dir => {
+        if (!fs.existsSync(dir)) return;
+        
+        // If it's a temp directory, check the directory itself
+        if (dir.includes('/temp_')) {
+            const stats = fs.statSync(dir);
+            if (now - stats.mtimeMs > expiry) {
+                console.log(`[JANITOR] Removing old temp dir: ${dir}`);
+                fs.rmSync(dir, { recursive: true, force: true });
+                return;
+            }
+        }
+
+        // Check files inside the directory
+        const files = fs.readdirSync(dir);
+        files.forEach(file => {
+            const filePath = path.join(dir, file);
+            const stats = fs.statSync(filePath);
+            if (now - stats.mtimeMs > expiry) {
+                console.log(`[JANITOR] Deleting old file: ${file}`);
+                if (stats.isDirectory()) {
+                    fs.rmSync(filePath, { recursive: true, force: true });
+                } else {
+                    fs.unlinkSync(filePath);
+                }
+            }
+        });
+    });
+});
 
 // Load or initialize Social DB (separate from automation for clarity)
 const SOCIAL_DB_PATH = path.join(__dirname, 'social_db.json');
@@ -2136,8 +2186,8 @@ app.post('/api/upload', async (req, res) => {
             const tempPath = path.join(OUTPUT_DIR, `upload_${Date.now()}.mp4`);
             
             // Optimization: If the URL is local to this server, just copy the file directly
-            if (videoUrl.includes('/outputs/')) {
-                const fileName = videoUrl.split('/outputs/')[1];
+            if (videoUrl.includes('/output/')) {
+                const fileName = videoUrl.split('/output/')[1];
                 const sourcePath = path.join(OUTPUT_DIR, fileName.split('?')[0]); // Remove query params
                 if (fs.existsSync(sourcePath)) {
                     fs.copyFileSync(sourcePath, tempPath);
