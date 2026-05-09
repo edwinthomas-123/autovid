@@ -6,6 +6,46 @@ const path = require('path');
 const fs = require('fs');
 const https = require('https');
 const http = require('http');
+const { google } = require('googleapis');
+const session = require('express-session');
+
+// Google OAuth Configuration
+const SCOPES = [
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/drive.readonly',
+    'https://www.googleapis.com/auth/youtube.upload',
+    'https://www.googleapis.com/auth/youtube.readonly'
+];
+
+const TOKEN_PATH = path.join(__dirname, 'google_token.json');
+
+let oauth2Client;
+const loadGoogleConfig = () => {
+    try {
+        const secretPath = path.join(__dirname, 'client_secret.json');
+        if (fs.existsSync(secretPath)) {
+            const content = JSON.parse(fs.readFileSync(secretPath));
+            const keys = content.web || content.installed;
+            oauth2Client = new google.auth.OAuth2(
+                keys.client_id,
+                keys.client_secret,
+                keys.redirect_uris[0] || `${BASE_URL}/api/auth/google/callback`
+            );
+            console.log('[AUTH] Google OAuth2 Client Initialized');
+        }
+    } catch (e) {
+        console.error('[AUTH] Failed to load client_secret.json:', e.message);
+    }
+};
+loadGoogleConfig();
+
+app.use(session({
+    secret: 'autovid-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Set to true if using HTTPS
+}));
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3001';
 
@@ -16,7 +56,6 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 const axios = require('axios');
-const { google } = require('googleapis');
 const automationEngine = require('./automation_engine');
 const scoutEngine = require('./scout_engine');
 const seriesEngine = require('./series_engine');
@@ -1862,7 +1901,15 @@ app.get('/api/auth/callback/:platform', async (req, res) => {
                         window.opener.postMessage({ type: 'AUTH_SUCCESS', platform: '${platform}' }, '*');
                         window.close();
                     </script>
-                    <h1>Authentication Successful!</h1>
+                    <h1>// Authentication Status Endpoints
+app.get('/api/social/tokens', (req, res) => {
+    res.json(socialDb.tokens);
+});
+
+app.get('/api/auth/status', (req, res) => {
+    res.json({ authenticated: true, user: req.session.user || null });
+});
+</h1>
                     <p>You can close this window now.</p>
                 </body>
             </html>

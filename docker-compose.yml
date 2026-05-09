@@ -11,6 +11,8 @@ services:
       - ./server/social_db.json:/app/social_db.json
       - ./server/series_db.json:/app/series_db.json
       - ./server/scout_db.json:/app/scout_db.json
+      - ./server/upload_history.json:/app/upload_history.json
+      - ./server/google_token.json:/app/google_token.json
       - ./server/output:/app/output
       - ./server/test_assets:/app/test_assets
     environment:

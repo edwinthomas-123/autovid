@@ -10,7 +10,7 @@ const captionStyles = [
   { id: 'MINIMAL', name: 'Minimalist', example: 'Clean and simple captions', bg: '#ffffff', color: '#64748b' }
 ];
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
 
 const voices = [
   // --- NATURAL (Edge-TTS) ---
@@ -198,6 +198,36 @@ function App() {
     // We only persist activeJobs for the sidebar task tracking
     localStorage.setItem('activeJobs', JSON.stringify(activeJobs));
   }, [activeJobs]);
+
+  const fetchSocialStatus = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/social/tokens`);
+      const data = await res.json();
+      setSocialAccounts(prev => {
+        const next = { ...prev };
+        Object.keys(data).forEach(plat => {
+          next[plat] = { 
+            connected: data[plat].length > 0, 
+            accounts: data[plat].map((t: any) => ({ 
+              id: t.id, 
+              username: t.username || t.email, 
+              avatar: t.avatar,
+              email: t.email
+            })) 
+          };
+        });
+        return next;
+      });
+    } catch (e) {
+      console.error('Failed to fetch social status');
+    }
+  };
+
+  useEffect(() => {
+    fetchSocialStatus();
+    const interval = setInterval(fetchSocialStatus, 10000); // Sync every 10s
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const jobIds = Object.keys(activeJobs).filter(id => activeJobs[id].status === 'processing');
@@ -716,7 +746,7 @@ function AuthPage({ mode, setMode, onSuccess, onBack }: {
           </p>
         </div>
 
-        <button className="google-btn" onClick={onSuccess}>
+        <button className="google-btn" onClick={() => window.location.href = `${API_BASE_URL}/api/auth/google`}>
           <svg width="20" height="20" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -2983,6 +3013,36 @@ function APIKeys({
         <div style={{ marginBottom: '2rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '1.5rem' }}>
           <h2 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--dark)', marginBottom: '0.5rem' }}>Active Credentials</h2>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Enter your API keys below to enable AI features.</p>
+        </div>
+
+        {/* Google One-Click Connection */}
+        <div style={{
+          marginBottom: '2.5rem', padding: '1.5rem', borderRadius: '1rem',
+          background: 'linear-gradient(135deg, rgba(66, 133, 244, 0.05) 0%, rgba(52, 168, 83, 0.05) 100%)',
+          border: '1px solid rgba(66, 133, 244, 0.1)', position: 'relative', overflow: 'hidden'
+        }}>
+          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between'}}>
+            <div>
+              <div style={{fontWeight:800, color:'var(--dark)', fontSize:'1.1rem', marginBottom:'0.25rem'}}>Google Workspace</div>
+              <p style={{fontSize:'0.75rem', color:'var(--text-muted)', margin:0}}>One-click connection for YouTube & Google Drive</p>
+            </div>
+            <button 
+              className="btn btn-primary" 
+              style={{
+                background: socialAccounts.youtube?.connected ? '#10b981' : '#4285F4',
+                padding: '0.6rem 1.2rem', fontSize: '0.8rem', border: 'none'
+              }}
+              onClick={() => window.location.href = `${API_BASE_URL}/api/auth/google`}
+            >
+              {socialAccounts.youtube?.connected ? '✓ Connected' : 'Connect Account'}
+            </button>
+          </div>
+          {socialAccounts.youtube?.accounts?.[0] && (
+            <div style={{marginTop:'1rem', display:'flex', alignItems:'center', gap:'0.5rem', fontSize:'0.75rem', color:'var(--dark)', fontWeight:600}}>
+              <span style={{width:'8px', height:'8px', borderRadius:'50%', background:'#10b981'}}></span>
+              Linked to: {socialAccounts.youtube.accounts[0].email || socialAccounts.youtube.accounts[0].username}
+            </div>
+          )}
         </div>
 
         {keys.map((k) => (
