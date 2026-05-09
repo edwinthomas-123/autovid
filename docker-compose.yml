@@ -14,7 +14,7 @@ services:
       - ./server/output:/app/output
       - ./server/test_assets:/app/test_assets
     environment:
-      - BASE_URL=http://187.127.163.252:3001
+      - BASE_URL=http://187.127.163.252
       - PORT=3001
     restart: unless-stopped
 
