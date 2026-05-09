@@ -16,16 +16,36 @@ services:
       - ./server/output:/app/output
       - ./server/test_assets:/app/test_assets
     environment:
-      - BASE_URL=http://187.127.163.252
+      - BASE_URL=https://wellvid.tech
       - PORT=3001
     restart: unless-stopped
 
-  frontend:
+  web:
     build: 
       context: .
-    container_name: autovid-frontend
+    container_name: autovid-web
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - webroot:/var/www/certbot
     depends_on:
       - backend
-    restart: unless-stopped
+    restart: always
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - webroot:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email admin@wellvid.tech --agree-tos --no-eff-email -d wellvid.tech -d www.wellvid.tech
+
+volumes:
+  certbot-etc:
+  certbot-var:
+  webroot:

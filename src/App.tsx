@@ -589,6 +589,7 @@ function App() {
           {activeMenu === 'ACCOUNTS' && <SocialAccounts accounts={socialAccounts} setAccounts={setSocialAccounts} onConnect={() => {}} />}
           {activeMenu === 'API_KEYS' && (
             <APIKeys 
+              socialAccounts={socialAccounts}
               openAiKey={openAiKey} setOpenAiKey={setOpenAiKey} 
               geminiKey={geminiKey} setGeminiKey={setGeminiKey} 
               elevenLabsKey={elevenLabsKey} setElevenLabsKey={setElevenLabsKey} 
@@ -2937,6 +2938,7 @@ function TokenUsageChart({ balances }: { balances: any }) {
 }
 
 function APIKeys({ 
+  socialAccounts,
   openAiKey, setOpenAiKey, 
   geminiKey, setGeminiKey, 
   elevenLabsKey, setElevenLabsKey, 
@@ -2950,6 +2952,7 @@ function APIKeys({
   emailReceiver, setEmailReceiver,
   emailEnabled, setEmailEnabled
 }: {
+  socialAccounts: any;
   openAiKey: string; setOpenAiKey: (v: string) => void;
   geminiKey: string; setGeminiKey: (v: string) => void;
   elevenLabsKey: string; setElevenLabsKey: (v: string) => void;
