@@ -3606,6 +3606,10 @@ function SocialAccounts({ accounts, setAccounts, onConnect }: {
   };
 
   const handleConnect = async (platformId: string) => {
+    if (platformId === 'youtube') {
+      window.location.href = `${API_BASE_URL}/api/auth/google`;
+      return;
+    }
     setConnectingId(platformId);
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/url/${platformId}`);
@@ -3744,26 +3748,28 @@ function SocialAccounts({ accounts, setAccounts, onConnect }: {
                             fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '1rem'
                           }}>LINKED</span>
                         )}
-                        <button 
-                            onClick={(e) => { e.stopPropagation(); setShowConfig(showConfig === platform.id ? null : platform.id); }}
-                            style={{
-                                background: 'none', 
-                                border: 'none', 
-                                cursor: 'pointer', 
-                                padding: '4px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                opacity: showConfig === platform.id ? 1 : 0.6,
-                                color: showConfig === platform.id ? 'var(--primary)' : 'inherit',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                            </svg>
-                            <span style={{fontSize:'0.7rem', fontWeight: 800}}>SETTINGS</span>
-                        </button>
+                        {platform.id !== 'youtube' && (
+                          <button 
+                              onClick={(e) => { e.stopPropagation(); setShowConfig(showConfig === platform.id ? null : platform.id); }}
+                              style={{
+                                  background: 'none', 
+                                  border: 'none', 
+                                  cursor: 'pointer', 
+                                  padding: '4px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  opacity: showConfig === platform.id ? 1 : 0.6,
+                                  color: showConfig === platform.id ? 'var(--primary)' : 'inherit',
+                                  transition: 'all 0.2s'
+                              }}
+                          >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                              </svg>
+                              <span style={{fontSize:'0.7rem', fontWeight: 800}}>SETTINGS</span>
+                          </button>
+                        )}
                       </div>
                       {isConnected ? (
                         <div style={{marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
@@ -3802,8 +3808,8 @@ function SocialAccounts({ accounts, setAccounts, onConnect }: {
                         <div style={{fontSize:'0.85rem',color:'#64748b'}}>{platform.desc}</div>
                       )}
                       
-                      {/* Developer Config Panel */}
-                      {showConfig === platform.id && (
+                      {/* Developer Config Panel (Hidden for YouTube Managed Auth) */}
+                      {showConfig === platform.id && platform.id !== 'youtube' && (
                         <div style={{marginTop:'1rem', padding:'1rem', background:'#f8fafc', borderRadius:'0.5rem', border:'1px solid #e2e8f0'}}>
                             <div style={{fontSize:'0.75rem', fontWeight:700, marginBottom:'0.5rem'}}>DEV API CONFIG</div>
                             <input 
