@@ -25,9 +25,7 @@ const { recordToolDemo } = require('./recorder');
 const { renderWithCreatomate } = require('./creatomate_renderer');
 const { sendVideoEmail } = require('./email_helper');
 const cron = require('node-cron');
-automationEngine.start();
-seriesEngine.start();
-scheduledAutomationEngine.start();
+// Engines started below after utility functions
 
 // --- 24-HOUR FILE MANAGEMENT (The Janitor) ---
 cron.schedule('0 * * * *', () => {
@@ -146,8 +144,14 @@ const saveUploadHistory = async (data, auth = null) => {
         };
         history.unshift(entry);
         fs.writeFileSync(UPLOAD_HISTORY_PATH, JSON.stringify(history.slice(0, 500), null, 2));
+    } catch (e) {
+        console.error('Failed to save history:', e.message);
+    }
+};
 
-        // If no auth provided, try to find one from connected YouTube accounts
+automationEngine.start();
+seriesEngine.start();
+scheduledAutomationEngine.start();
         let sheetsAuth = auth;
         if (!sheetsAuth && socialDb.tokens.youtube && socialDb.tokens.youtube.length > 0) {
             const ytAccount = socialDb.tokens.youtube[0];
@@ -262,6 +266,14 @@ const saveKeysDb = () => fs.writeFileSync(KEYS_DB_PATH, JSON.stringify(keysDb, n
 const HISTORY_PATH = path.join(__dirname, 'history.json');
 let jobs = {};
 
+const saveHistory = () => {
+    try {
+        fs.writeFileSync(HISTORY_PATH, JSON.stringify(jobs, null, 2));
+    } catch (e) {
+        console.error('Failed to save history.json:', e);
+    }
+};
+
 if (fs.existsSync(HISTORY_PATH)) {
     try {
         jobs = JSON.parse(fs.readFileSync(HISTORY_PATH, 'utf8'));
@@ -279,11 +291,6 @@ if (fs.existsSync(HISTORY_PATH)) {
         console.error('Failed to load history.json:', e);
     }
 }
-
-const saveHistory = () => {
-    try {
-        fs.writeFileSync(HISTORY_PATH, JSON.stringify(jobs, null, 2));
-    } catch (e) {
         console.error('Failed to save history.json:', e);
     }
 };
