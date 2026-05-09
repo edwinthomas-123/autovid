@@ -6,6 +6,26 @@
   "postedIds": [],
   "logs": [
     {
+      "time": "9/5/2026, 10:00:00 pm",
+      "event": "Sync Error: Google token missing. Please run the login script first.",
+      "status": "error"
+    },
+    {
+      "time": "9/5/2026, 10:00:00 pm",
+      "event": "Starting background clips sync...",
+      "status": "info"
+    },
+    {
+      "time": "9/5/2026, 9:00:00 pm",
+      "event": "Sync Error: Google token missing. Please run the login script first.",
+      "status": "error"
+    },
+    {
+      "time": "9/5/2026, 9:00:00 pm",
+      "event": "Starting background clips sync...",
+      "status": "info"
+    },
+    {
       "time": "9/5/2026, 8:00:00 pm",
       "event": "Sync Error: Google token missing. Please run the login script first.",
       "status": "error"
@@ -232,26 +252,6 @@
     },
     {
       "time": "4/5/2026, 11:08:15 pm",
-      "event": "Starting background clips sync...",
-      "status": "info"
-    },
-    {
-      "time": "4/5/2026, 11:00:00 pm",
-      "event": "Sync Error: Google token missing. Please run the login script first.",
-      "status": "error"
-    },
-    {
-      "time": "4/5/2026, 11:00:00 pm",
-      "event": "Starting background clips sync...",
-      "status": "info"
-    },
-    {
-      "time": "4/5/2026, 10:55:58 pm",
-      "event": "Sync Error: Google token missing. Please run the login script first.",
-      "status": "error"
-    },
-    {
-      "time": "4/5/2026, 10:55:58 pm",
       "event": "Starting background clips sync...",
       "status": "info"
     }
