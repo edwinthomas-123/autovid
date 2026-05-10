@@ -38,7 +38,7 @@ const TOKEN_PATH = path.join(__dirname, 'google_token.json');
 let oauth2Client;
 const loadGoogleConfig = () => {
     try {
-        const secretPath = path.join(__dirname, 'client_secret.json');
+        const secretPath = path.join(__dirname, 'google_credentials.json');
         if (fs.existsSync(secretPath)) {
             const content = JSON.parse(fs.readFileSync(secretPath));
             const keys = content.web || content.installed;
@@ -48,9 +48,11 @@ const loadGoogleConfig = () => {
                 keys.redirect_uris[0] || `${BASE_URL}/api/auth/google/callback`
             );
             console.log('[AUTH] Google OAuth2 Client Initialized');
+        } else {
+            console.warn('[AUTH] google_credentials.json not found in server directory');
         }
     } catch (e) {
-        console.error('[AUTH] Failed to load client_secret.json:', e.message);
+        console.error('[AUTH] Failed to load google_credentials.json:', e.message);
     }
 };
 loadGoogleConfig();
