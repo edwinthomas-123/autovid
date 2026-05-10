@@ -189,6 +189,7 @@ if (!fs.existsSync(SOCIAL_DB_PATH)) {
     }, null, 2));
 }
 let socialDb = JSON.parse(fs.readFileSync(SOCIAL_DB_PATH));
+const saveSocialDb = () => fs.writeFileSync(SOCIAL_DB_PATH, JSON.stringify(socialDb, null, 2));
 // Migration: Ensure all platforms exist in configs and tokens are arrays
 ['youtube', 'instagram', 'tiktok', 'facebook', 'pinterest', 'twitter', 'linkedin', 'snapchat'].forEach(p => {
     if (!socialDb.configs[p]) {
