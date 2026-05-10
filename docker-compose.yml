@@ -18,6 +18,8 @@ services:
     environment:
       - BASE_URL=https://wellvid.tech
       - PORT=3001
+    networks:
+      - wellvid-network
     restart: unless-stopped
 
   web:
@@ -34,6 +36,8 @@ services:
       - webroot:/var/www/certbot
     depends_on:
       - backend
+    networks:
+      - wellvid-network
     restart: always
 
   certbot:
@@ -44,6 +48,12 @@ services:
       - certbot-var:/var/lib/letsencrypt
       - webroot:/var/www/certbot
     command: certonly --webroot --webroot-path=/var/www/certbot --email admin@wellvid.tech --agree-tos --no-eff-email -d wellvid.tech -d www.wellvid.tech
+    networks:
+      - wellvid-network
+
+networks:
+  wellvid-network:
+    driver: bridge
 
 volumes:
   certbot-etc:
