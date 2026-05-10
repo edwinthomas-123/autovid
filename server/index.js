@@ -208,7 +208,6 @@ const saveSocialDb = () => fs.writeFileSync(SOCIAL_DB_PATH, JSON.stringify(socia
         });
     }
 });
-const saveSocialDb = () => fs.writeFileSync(SOCIAL_DB_PATH, JSON.stringify(socialDb, null, 2));
 saveSocialDb();
 
 // Load or initialize Projects DB
@@ -376,9 +375,6 @@ if (fs.existsSync(HISTORY_PATH)) {
         console.error('Failed to load history.json:', e);
     }
 }
-        console.error('Failed to save history.json:', e);
-    }
-};
 
 const createJob = (type, metadata) => {
     const id = Date.now().toString() + Math.random().toString(36).substring(2, 7);
