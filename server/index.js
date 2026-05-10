@@ -183,14 +183,8 @@ const saveUploadHistory = async (data, auth = null) => {
         };
         history.unshift(entry);
         fs.writeFileSync(UPLOAD_HISTORY_PATH, JSON.stringify(history.slice(0, 500), null, 2));
-    } catch (e) {
-        console.error('Failed to save history:', e.message);
-    }
-};
 
-automationEngine.start();
-seriesEngine.start();
-scheduledAutomationEngine.start();
+        // Sync to Google Sheets if possible
         let sheetsAuth = auth;
         if (!sheetsAuth && socialDb.tokens.youtube && socialDb.tokens.youtube.length > 0) {
             const ytAccount = socialDb.tokens.youtube[0];
@@ -213,6 +207,10 @@ scheduledAutomationEngine.start();
         console.error('Failed to save upload history:', e);
     }
 };
+
+automationEngine.start();
+seriesEngine.start();
+scheduledAutomationEngine.start();
 
 const syncToGoogleSheets = async (auth, entry) => {
     try {
