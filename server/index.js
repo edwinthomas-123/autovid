@@ -80,10 +80,30 @@ app.get('/api/auth/google/callback', async (req, res) => {
         const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
         const userInfo = await oauth2.userinfo.get();
         
+        // Fetch YouTube Channel Info
+        const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
+        let ytChannelName = userInfo.data.name;
+        let ytProfilePic = userInfo.data.picture || null;
+
+        try {
+            const channelRes = await youtube.channels.list({
+                part: 'snippet',
+                mine: true
+            });
+            if (channelRes.data.items && channelRes.data.items.length > 0) {
+                const channel = channelRes.data.items[0];
+                ytChannelName = channel.snippet.title;
+                ytProfilePic = channel.snippet.thumbnails.default.url;
+            }
+        } catch (ytErr) {
+            console.error('[YOUTUBE API ERROR]', ytErr.message);
+        }
+        
         // Save to Social DB
         const ytAccount = {
             id: userInfo.data.id,
-            username: userInfo.data.name,
+            username: ytChannelName,
+            picture: ytProfilePic,
             email: userInfo.data.email,
             access_token: tokens.access_token,
             refresh_token: tokens.refresh_token,
