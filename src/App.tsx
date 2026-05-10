@@ -288,10 +288,27 @@ function App() {
 
   // Centralized API keys
   const [openAiKey, setOpenAiKey] = useState('');
-  const [geminiKey, setGeminiKey] = useState('AIzaSyAwu2R0TyOC_t6vuEY-4xG4iPrEyAzdn88');
-  const [elevenLabsKey, setElevenLabsKey] = useState('sk_a92e5346eb1baef4d24792736e974aeff64e82d1385221e0');
-  const [pexelsKey, setPexelsKey] = useState('bHqWydcJV01Ja2np9ByGHUHOXOs53z2r1kHrvXb8W7QYdhStZvtAVLtY');
-  const [creatomateKey, setCreatomateKey] = useState('4c5b705e6a574c63b9d3b06a120887607d49833762531ebe949b56a28e0e05a7ccd0ccdf93303684b604d784c8e24981');
+  const [geminiKey, setGeminiKey] = useState('');
+  const [elevenLabsKey, setElevenLabsKey] = useState('');
+  const [pexelsKey, setPexelsKey] = useState('');
+  const [creatomateKey, setCreatomateKey] = useState('');
+
+  // Free trial gate
+  const [freeTrialsUsed, setFreeTrialsUsed] = useState<number>(() => {
+    return parseInt(localStorage.getItem('freeTrialsUsed') || '0', 10);
+  });
+  const FREE_TRIAL_LIMIT = 1;
+
+  const checkAndGateGeneration = (): boolean => {
+    if (freeTrialsUsed >= FREE_TRIAL_LIMIT) {
+      setActiveMenu('PRICING');
+      return false; // blocked
+    }
+    const newCount = freeTrialsUsed + 1;
+    setFreeTrialsUsed(newCount);
+    localStorage.setItem('freeTrialsUsed', newCount.toString());
+    return true; // allowed
+  };
   
   // Email Configuration State
   const [emailService, setEmailService] = useState('gmail');
@@ -487,7 +504,7 @@ function App() {
 
           <div className="nav-group-label">Account</div>
 
-          <div className="nav-item">Billing</div>
+          <div className={`nav-item ${activeMenu === 'PRICING' ? 'active' : ''}`} onClick={() => setActiveMenu('PRICING')}>Billing</div>
           <div 
             className={`nav-item ${activeMenu === 'ACCOUNTS' ? 'active' : ''}`}
             onClick={() => setActiveMenu('ACCOUNTS')}
@@ -505,7 +522,7 @@ function App() {
 
       <div className="main-wrapper">
         <header className="top-navbar">
-          <button className="btn btn-primary" style={{fontSize: '0.75rem'}}>
+          <button className="btn btn-primary" style={{fontSize: '0.75rem'}} onClick={() => setActiveMenu('PRICING')}>
             Upgrade Plan
           </button>
           <div className="top-nav-link" onClick={() => setActiveMenu('CREATE_SERIES')}>Dashboard</div>
@@ -546,8 +563,8 @@ function App() {
               />
             </>
           )}
-          {activeMenu === 'AI_AVATAR' && <AIAvatar />}
-          {activeMenu === 'CLIPPER' && <Clipper activeJobs={activeJobs} addJob={(id) => addJob(id, 'CLIPPER')} clearJob={() => clearJob('CLIPPER')} lastJobId={lastJobIds['CLIPPER']} socialAccounts={socialAccounts} />}
+          {activeMenu === 'AI_AVATAR' && <AIAvatar checkGate={checkAndGateGeneration} />}
+          {activeMenu === 'CLIPPER' && <Clipper activeJobs={activeJobs} addJob={(id) => addJob(id, 'CLIPPER')} clearJob={() => clearJob('CLIPPER')} lastJobId={lastJobIds['CLIPPER']} socialAccounts={socialAccounts} checkGate={checkAndGateGeneration} />}
            {activeMenu === 'SHORT_VIDEO' && (
             <ShortVideo 
               openAiKey={openAiKey} 
@@ -564,6 +581,7 @@ function App() {
               clearJob={() => clearJob('SHORT_VIDEO')}
               lastJobId={lastJobIds['SHORT_VIDEO']}
               socialAccounts={socialAccounts}
+              checkGate={checkAndGateGeneration}
             />
           )}
            {activeMenu === 'LONG_VIDEO' && (
@@ -582,6 +600,7 @@ function App() {
               clearJob={() => clearJob('LONG_VIDEO')}
               lastJobId={lastJobIds['LONG_VIDEO']}
               socialAccounts={socialAccounts}
+              checkGate={checkAndGateGeneration}
             />
           )}
           {activeMenu === 'VIEW' && <ManageAutomation />}
@@ -626,6 +645,7 @@ function App() {
               socialAccounts={socialAccounts}
             />
           )}
+          {activeMenu === 'PRICING' && <PricingPage freeTrialsUsed={freeTrialsUsed} freeTrialLimit={FREE_TRIAL_LIMIT} />}
         </main>
       </div>
     </div>
@@ -1806,12 +1826,12 @@ function Clipper({ activeJobs, addJob, clearJob, lastJobId, socialAccounts }: { 
 function ShortVideo({ 
   openAiKey, geminiKey, elevenLabsKey, pexelsKey, onGoToKeys,
   activeStyle, activeTheme, activeNiche, videoEngine,
-  activeJobs, addJob, clearJob, lastJobId, socialAccounts
+  activeJobs, addJob, clearJob, lastJobId, socialAccounts, checkGate
 }: { 
   openAiKey: string; geminiKey: string; elevenLabsKey: string; pexelsKey: string; onGoToKeys: () => void;
   activeStyle: string; activeTheme: string; activeNiche: string; videoEngine: string;
   activeJobs: any; addJob: (id: string) => void; clearJob: () => void; lastJobId?: string;
-  socialAccounts: any;
+  socialAccounts: any; checkGate?: () => boolean;
 }) {
   const [step, setStep] = useState(1);
   const [topic, setTopic] = useState('');
@@ -1836,6 +1856,7 @@ function ShortVideo({
 
   const handleGenerateScript = async () => {
     if (!topic || (!openAiKey && !geminiKey)) return;
+    if (checkGate && !checkGate()) return;
     setIsGeneratingScript(true);
     setScript('');
     try {
@@ -2375,12 +2396,12 @@ function ShortVideo({
 function LongVideo({ 
   openAiKey, geminiKey, elevenLabsKey, pexelsKey, onGoToKeys,
   activeStyle, activeTheme, activeNiche, videoEngine,
-  activeJobs, addJob, clearJob, lastJobId, socialAccounts
+  activeJobs, addJob, clearJob, lastJobId, socialAccounts, checkGate
 }: { 
   openAiKey: string; geminiKey: string; elevenLabsKey: string; pexelsKey: string; onGoToKeys: () => void;
   activeStyle: string; activeTheme: string; activeNiche: string; videoEngine: string;
   activeJobs: any; addJob: (id: string) => void; clearJob: () => void; lastJobId?: string;
-  socialAccounts: any;
+  socialAccounts: any; checkGate?: () => boolean;
 }) {
   const [step, setStep] = useState(1);
   const [topic, setTopic] = useState('');
@@ -2401,6 +2422,7 @@ function LongVideo({
 
   const handleGenerateScript = async () => {
     if (!topic || (!openAiKey && !geminiKey)) return;
+    if (checkGate && !checkGate()) return;
     setIsGeneratingScript(true);
     setScript('');
     try {
@@ -4849,3 +4871,197 @@ function ManageAutomation() {
 }
 
 export default App;
+
+function PricingPage({ freeTrialsUsed, freeTrialLimit }: { freeTrialsUsed: number; freeTrialLimit: number }) {
+  const trialsLeft = Math.max(0, freeTrialLimit - freeTrialsUsed);
+
+  const plans = [
+    {
+      name: 'Free',
+      price: '$0',
+      period: 'forever',
+      desc: 'Try before you buy',
+      color: '#64748b',
+      gradient: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+      features: [
+        `${freeTrialLimit} free video generation`,
+        'All video types unlocked',
+        'Basic AI voices',
+        'Watermarked output',
+        'Community support',
+      ],
+      cta: trialsLeft > 0 ? `${trialsLeft} trial left` : 'Trial used',
+      ctaDisabled: trialsLeft === 0,
+      highlight: false,
+    },
+    {
+      name: 'Pro',
+      price: '$19',
+      period: '/month',
+      desc: 'For serious creators',
+      color: '#6366f1',
+      gradient: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+      features: [
+        'Unlimited video generations',
+        'All video types (Short, Long, Avatar)',
+        'Premium AI voices (ElevenLabs)',
+        'No watermarks',
+        'YouTube auto-upload',
+        'AI Scout Bot',
+        'Priority support',
+      ],
+      cta: 'Get Pro →',
+      ctaDisabled: false,
+      highlight: true,
+    },
+    {
+      name: 'Business',
+      price: '$49',
+      period: '/month',
+      desc: 'Scale your content empire',
+      color: '#f59e0b',
+      gradient: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
+      features: [
+        'Everything in Pro',
+        'Unlimited automation workflows',
+        'Multiple YouTube channels',
+        'Google Drive integration',
+        'Series scheduler',
+        'Google Sheets sync',
+        'Dedicated support',
+        'Custom branding',
+      ],
+      cta: 'Get Business →',
+      ctaDisabled: false,
+      highlight: false,
+    },
+  ];
+
+  return (
+    <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '2rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--dark)', letterSpacing: '-0.03em', margin: 0 }}>
+          Simple, Transparent Pricing
+        </h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginTop: '0.75rem' }}>
+          Start free, scale as you grow. Cancel anytime.
+        </p>
+
+        {/* Free trial indicator */}
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: '0.75rem',
+          marginTop: '1.5rem', padding: '0.75rem 1.5rem',
+          background: trialsLeft > 0 ? 'rgba(99, 102, 241, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+          border: `1px solid ${trialsLeft > 0 ? 'rgba(99,102,241,0.2)' : 'rgba(239,68,68,0.2)'}`,
+          borderRadius: '100px',
+        }}>
+          <span style={{ fontSize: '1.2rem' }}>{trialsLeft > 0 ? '✨' : '🔒'}</span>
+          <span style={{
+            fontSize: '0.9rem', fontWeight: 700,
+            color: trialsLeft > 0 ? '#6366f1' : '#ef4444'
+          }}>
+            {trialsLeft > 0
+              ? `You have ${trialsLeft} free video generation remaining`
+              : 'Your free trial has been used — upgrade to keep creating!'}
+          </span>
+        </div>
+      </div>
+
+      {/* Pricing cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', alignItems: 'start' }}>
+        {plans.map((plan) => (
+          <div
+            key={plan.name}
+            style={{
+              borderRadius: '1.5rem',
+              overflow: 'hidden',
+              border: plan.highlight ? `2px solid ${plan.color}` : '1px solid var(--border-color)',
+              boxShadow: plan.highlight ? `0 20px 60px rgba(99,102,241,0.2)` : '0 4px 20px rgba(0,0,0,0.06)',
+              transform: plan.highlight ? 'scale(1.03)' : 'scale(1)',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+              background: 'white',
+              position: 'relative',
+            }}
+          >
+            {plan.highlight && (
+              <div style={{
+                position: 'absolute', top: '-1px', left: '50%', transform: 'translateX(-50%)',
+                background: plan.gradient, color: 'white', fontSize: '0.7rem', fontWeight: 800,
+                padding: '0.3rem 1.2rem', borderRadius: '0 0 0.75rem 0.75rem',
+                textTransform: 'uppercase', letterSpacing: '0.08em'
+              }}>
+                ⭐ Most Popular
+              </div>
+            )}
+
+            {/* Card header */}
+            <div style={{ background: plan.gradient, padding: '2rem', color: plan.highlight ? 'white' : 'var(--dark)' }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.8, marginBottom: '0.5rem' }}>
+                {plan.name}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.25rem' }}>
+                <span style={{ fontSize: '3rem', fontWeight: 900, lineHeight: 1 }}>{plan.price}</span>
+                <span style={{ fontSize: '0.9rem', fontWeight: 500, opacity: 0.7, paddingBottom: '0.5rem' }}>{plan.period}</span>
+              </div>
+              <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem', opacity: 0.8 }}>{plan.desc}</p>
+            </div>
+
+            {/* Features */}
+            <div style={{ padding: '1.75rem 2rem' }}>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem' }}>
+                {plan.features.map((feature, i) => (
+                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.75rem', fontSize: '0.875rem', color: 'var(--dark)' }}>
+                    <span style={{ color: plan.color, fontWeight: 900, fontSize: '1rem', flexShrink: 0 }}>✓</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                onClick={() => {
+                  if (!plan.ctaDisabled) {
+                    alert(`🚀 ${plan.name} plan coming soon! Contact us to get early access.`);
+                  }
+                }}
+                disabled={plan.ctaDisabled}
+                style={{
+                  width: '100%',
+                  padding: '0.9rem',
+                  borderRadius: '0.75rem',
+                  border: 'none',
+                  background: plan.ctaDisabled ? '#e2e8f0' : plan.highlight ? plan.gradient : `${plan.color}15`,
+                  color: plan.ctaDisabled ? '#94a3b8' : plan.highlight ? 'white' : plan.color,
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                  cursor: plan.ctaDisabled ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s',
+                  letterSpacing: '0.02em',
+                }}
+              >
+                {plan.cta}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* FAQ */}
+      <div style={{ marginTop: '4rem', textAlign: 'center' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--dark)', marginBottom: '2rem' }}>Frequently Asked Questions</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', textAlign: 'left' }}>
+          {[
+            { q: 'What counts as a "video generation"?', a: 'Any time you click the generate/render button for a Short Video, Long Video, AI Avatar, or Clipper — that uses one generation.' },
+            { q: 'Can I cancel anytime?', a: 'Yes. There are no long-term contracts. You can cancel your subscription at any time and you will retain access until the end of your billing period.' },
+            { q: 'What payment methods do you accept?', a: 'We accept all major credit cards (Visa, Mastercard, Amex) and PayPal through our secure payment gateway.' },
+            { q: 'Is there a free trial for Pro?', a: 'The Free plan gives you 1 video generation to test the full quality. If you love it, upgrade to Pro for unlimited generations.' },
+          ].map((faq, i) => (
+            <div key={i} style={{ background: 'white', border: '1px solid var(--border-color)', borderRadius: '1rem', padding: '1.5rem' }}>
+              <div style={{ fontWeight: 700, color: 'var(--dark)', marginBottom: '0.5rem', fontSize: '0.9rem' }}>{faq.q}</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: 1.6 }}>{faq.a}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
