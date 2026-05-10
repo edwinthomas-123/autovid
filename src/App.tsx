@@ -1400,7 +1400,7 @@ function CreateAutomation({ socialAccounts, activeNiche, styles }: any) {
   );
 }
 
-function AIAvatar() {
+function AIAvatar({ checkGate }: { checkGate?: () => boolean }) {
   const [text, setText] = useState('Type your message here...');
   const [activeAvatar, setActiveAvatar] = useState(0);
   const [voice, setVoice] = useState('US-Female-Viral');
@@ -1492,7 +1492,7 @@ function AIAvatar() {
             <button 
               className="btn btn-primary" 
               style={{width: '100%', padding: '1rem', background: 'var(--dark)'}}
-              onClick={() => alert('Generating AI Avatar Video... This may take a few minutes.')}
+              onClick={() => { if (checkGate && !checkGate()) return; alert('Generating AI Avatar Video... This may take a few minutes.'); }}
             >
               🎥 Generate Avatar Video
             </button>
@@ -1532,7 +1532,7 @@ function AIAvatar() {
   );
 }
 
-function Clipper({ activeJobs, addJob, clearJob, lastJobId, socialAccounts }: { activeJobs: any, addJob: (id: string, type: string) => void, clearJob: (type: string) => void, lastJobId?: string, socialAccounts: any }) {
+function Clipper({ activeJobs, addJob, clearJob, lastJobId, socialAccounts, checkGate }: { activeJobs: any, addJob: (id: string, type: string) => void, clearJob: (type: string) => void, lastJobId?: string, socialAccounts: any, checkGate?: () => boolean }) {
   const [url, setUrl] = useState('');
   const [activeCaption, setActiveCaption] = useState('DYNAMICS');
   const [clipCount, setClipCount] = useState(1);
@@ -1556,6 +1556,7 @@ function Clipper({ activeJobs, addJob, clearJob, lastJobId, socialAccounts }: { 
 
   const handleGenerate = async () => {
     if (!url) return;
+    if (checkGate && !checkGate()) return;
     try {
       const response = await fetch(`${API_BASE_URL}/api/clip`, {
         method: 'POST',
