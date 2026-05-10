@@ -1,5 +1,5 @@
-require('dotenv').config();
 const express = require('express');
+const app = express();
 const cors = require('cors');
 const { spawn } = require('child_process');
 const path = require('path');
@@ -8,6 +8,21 @@ const https = require('https');
 const http = require('http');
 const { google } = require('googleapis');
 const session = require('express-session');
+const axios = require('axios');
+
+require('dotenv').config();
+
+const BASE_URL = process.env.BASE_URL || 'https://wellvid.tech';
+const PORT = process.env.PORT || 3001;
+
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+app.use(session({
+    secret: 'autovid-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+}));
 
 // Google OAuth Configuration
 const SCOPES = [
@@ -40,22 +55,52 @@ const loadGoogleConfig = () => {
 };
 loadGoogleConfig();
 
-app.use(session({
-    secret: 'autovid-secret-key',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false } // Set to true if using HTTPS
-}));
+// --- AUTH ROUTES ---
+app.get('/api/auth/google', (req, res) => {
+    if (!oauth2Client) return res.status(500).json({ error: 'Google OAuth not configured on server' });
+    const url = oauth2Client.generateAuthUrl({
+        access_type: 'offline',
+        scope: SCOPES,
+        prompt: 'consent'
+    });
+    res.redirect(url);
+});
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3001';
+app.get('/api/auth/google/callback', async (req, res) => {
+    const { code } = req.query;
+    if (!code) return res.redirect(`${BASE_URL}?error=no_code`);
+    
+    try {
+        const { tokens } = await oauth2Client.getToken(code);
+        oauth2Client.setCredentials(tokens);
+        
+        // Get User Info
+        const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
+        const userInfo = await oauth2.userinfo.get();
+        
+        // Save to Social DB
+        const ytAccount = {
+            id: userInfo.data.id,
+            username: userInfo.data.name,
+            email: userInfo.data.email,
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token,
+            expiry_date: tokens.expiry_date
+        };
+        
+        // Remove existing if same ID
+        socialDb.tokens.youtube = socialDb.tokens.youtube.filter(t => t.id !== ytAccount.id);
+        socialDb.tokens.youtube.push(ytAccount);
+        saveSocialDb();
+        
+        res.redirect(`${BASE_URL}/accounts?success=youtube_connected`);
+    } catch (e) {
+        console.error('[AUTH ERROR]', e.message);
+        res.redirect(`${BASE_URL}/accounts?error=auth_failed`);
+    }
+});
 
 const piperTts = require('./piper_tts');
-
-const app = express();
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-
-const axios = require('axios');
 const automationEngine = require('./automation_engine');
 const scoutEngine = require('./scout_engine');
 const seriesEngine = require('./series_engine');
@@ -2344,5 +2389,4 @@ app.post('/api/upload', async (req, res) => {
     })();
 });
 
-const PORT = 3001;
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
