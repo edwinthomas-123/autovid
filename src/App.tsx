@@ -419,11 +419,6 @@ function App() {
   ];
 
   if (currentView === 'LANDING') {
-    // If already logged in, skip landing and go straight to dashboard
-    if (userEmail) {
-      setCurrentView('DASHBOARD');
-      return null;
-    }
     return <LandingPage 
       onNavigate={(view, mode) => {
         setCurrentView(view);
@@ -725,14 +720,14 @@ function LandingPage({ onNavigate, styles }: { onNavigate: (view: string, mode?:
           <span style={{fontSize: '0.9rem', color: '#64748b', fontWeight: 500, cursor: 'pointer'}}>Pricing</span>
           <span 
             style={{fontSize: '0.9rem', color: '#0f172a', fontWeight: 700, cursor: 'pointer'}} 
-            onClick={() => onNavigate('DASHBOARD')}
+            onClick={() => onNavigate('AUTH', 'login')}
           >
             Login
           </span>
           <button 
             className="btn btn-primary" 
             style={{backgroundColor: '#0f172a', padding: '0.75rem 1.5rem'}} 
-            onClick={() => onNavigate('DASHBOARD')}
+            onClick={() => onNavigate('AUTH', 'signup')}
           >
             Sign Up
           </button>
