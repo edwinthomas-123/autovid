@@ -294,12 +294,31 @@ function App() {
   const [creatomateKey, setCreatomateKey] = useState('');
 
   // Free trial gate
+  const [userEmail, setUserEmail] = useState(() => localStorage.getItem('userEmail') || '');
+  const [userPicture, setUserPicture] = useState(() => localStorage.getItem('userPicture') || '');
   const [freeTrialsUsed, setFreeTrialsUsed] = useState<number>(() => {
     return parseInt(localStorage.getItem('freeTrialsUsed') || '0', 10);
   });
   const FREE_TRIAL_LIMIT = 1;
 
+  useEffect(() => {
+    localStorage.setItem('userEmail', userEmail);
+    localStorage.setItem('userPicture', userPicture);
+  }, [userEmail, userPicture]);
+
+  useEffect(() => {
+    // If a YouTube account is connected, use its email and picture
+    if (socialAccounts.youtube?.connected && socialAccounts.youtube.accounts?.[0]) {
+      const acc = socialAccounts.youtube.accounts[0];
+      if (acc.email) setUserEmail(acc.email);
+      if (acc.picture) setUserPicture(acc.picture);
+    }
+  }, [socialAccounts.youtube]);
+
   const checkAndGateGeneration = (): boolean => {
+    if (userEmail === 'edwinmoothedan2006@gmail.com') {
+      return true; // Unlimited for Edwin
+    }
     if (freeTrialsUsed >= FREE_TRIAL_LIMIT) {
       setActiveMenu('PRICING');
       return false; // blocked
@@ -412,6 +431,8 @@ function App() {
     return <AuthPage 
       mode={authMode} 
       setMode={setAuthMode} 
+      userEmail={userEmail}
+      setUserEmail={setUserEmail}
       onSuccess={() => setCurrentView('DASHBOARD')}
       onBack={() => setCurrentView('LANDING')}
     />;
@@ -517,6 +538,39 @@ function App() {
           >
             History
           </div>
+
+          <div style={{ marginTop: 'auto', paddingTop: '2rem', borderTop: '1px solid #f1f5f9' }}>
+            {userEmail && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 1.25rem', marginBottom: '1rem' }}>
+                {userPicture ? (
+                  <img src={userPicture} alt="User" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+                ) : (
+                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '0.8rem' }}>
+                    {userEmail[0].toUpperCase()}
+                  </div>
+                )}
+                <div style={{ overflow: 'hidden' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--dark)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {userEmail.split('@')[0]}
+                  </div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {userEmail}
+                  </div>
+                </div>
+              </div>
+            )}
+            <div 
+              className="nav-item" 
+              style={{ color: '#ef4444', fontWeight: 700 }} 
+              onClick={() => {
+                setUserEmail('');
+                setUserPicture('');
+                setCurrentView('LANDING');
+              }}
+            >
+              Logout
+            </div>
+          </div>
         </nav>
       </aside>
 
@@ -527,7 +581,6 @@ function App() {
           </button>
           <div className="top-nav-link" onClick={() => setActiveMenu('CREATE_SERIES')}>Dashboard</div>
           <div className="top-nav-link">Affiliates</div>
-          <div className="top-nav-link" onClick={() => setCurrentView('LANDING')}>Logout</div>
         </header>
 
         <main className="main-content">
@@ -645,7 +698,7 @@ function App() {
               socialAccounts={socialAccounts}
             />
           )}
-          {activeMenu === 'PRICING' && <PricingPage freeTrialsUsed={freeTrialsUsed} freeTrialLimit={FREE_TRIAL_LIMIT} />}
+          {activeMenu === 'PRICING' && <PricingPage userEmail={userEmail} freeTrialsUsed={freeTrialsUsed} freeTrialLimit={FREE_TRIAL_LIMIT} />}
         </main>
       </div>
     </div>
@@ -733,11 +786,13 @@ function LandingPage({ onNavigate, styles }: { onNavigate: (view: string, mode?:
   );
 }
 
-function AuthPage({ mode, setMode, onSuccess, onBack }: { 
+function AuthPage({ mode, setMode, onSuccess, onBack, userEmail, setUserEmail }: { 
   mode: 'login' | 'signup', 
   setMode: (m: 'login' | 'signup') => void, 
   onSuccess: () => void,
-  onBack: () => void
+  onBack: () => void,
+  userEmail: string,
+  setUserEmail: (e: string) => void
 }) {
   return (
     <div className="auth-container">
@@ -770,6 +825,39 @@ function AuthPage({ mode, setMode, onSuccess, onBack }: {
 
 
         <div className="auth-form">
+          <button 
+            className="btn" 
+            style={{
+              width: '100%', 
+              padding: '1rem', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '0.75rem', 
+              background: 'white', 
+              color: 'var(--dark)', 
+              border: '1px solid #e2e8f0',
+              fontWeight: 700,
+              marginBottom: '1.5rem',
+              borderRadius: '0.75rem'
+            }}
+            onClick={() => window.location.href = `${API_BASE_URL}/api/auth/google`}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <div style={{display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem'}}>
+            <div style={{flex: 1, height: '1px', background: '#e2e8f0'}}></div>
+            <span style={{fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600}}>OR</span>
+            <div style={{flex: 1, height: '1px', background: '#e2e8f0'}}></div>
+          </div>
+
           {mode === 'signup' && (
             <div className="auth-input-group">
               <label className="auth-label">Full Name</label>
@@ -778,7 +866,13 @@ function AuthPage({ mode, setMode, onSuccess, onBack }: {
           )}
           <div className="auth-input-group">
             <label className="auth-label">Email Address</label>
-            <input type="email" className="auth-input" placeholder="name@company.com" />
+            <input 
+              type="email" 
+              className="auth-input" 
+              placeholder="name@company.com" 
+              value={userEmail}
+              onChange={(e) => setUserEmail(e.target.value)}
+            />
           </div>
           <div className="auth-input-group">
             <label className="auth-label">Password</label>
@@ -4873,7 +4967,8 @@ function ManageAutomation() {
 
 export default App;
 
-function PricingPage({ freeTrialsUsed, freeTrialLimit }: { freeTrialsUsed: number; freeTrialLimit: number }) {
+function PricingPage({ userEmail, freeTrialsUsed, freeTrialLimit }: { userEmail: string; freeTrialsUsed: number; freeTrialLimit: number }) {
+  const isEdwin = userEmail === 'edwinmoothedan2006@gmail.com';
   const trialsLeft = Math.max(0, freeTrialLimit - freeTrialsUsed);
 
   const plans = [
@@ -4885,15 +4980,15 @@ function PricingPage({ freeTrialsUsed, freeTrialLimit }: { freeTrialsUsed: numbe
       color: '#64748b',
       gradient: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
       features: [
-        `${freeTrialLimit} free video generation`,
+        isEdwin ? 'Unlimited free generations' : `${freeTrialLimit} free video generation`,
         'All video types unlocked',
         'Basic AI voices',
         'Watermarked output',
         'Community support',
       ],
-      cta: trialsLeft > 0 ? `${trialsLeft} trial left` : 'Trial used',
-      ctaDisabled: trialsLeft === 0,
-      highlight: false,
+      cta: isEdwin ? 'Active (Admin Bypass)' : (trialsLeft > 0 ? `${trialsLeft} trial left` : 'Trial used'),
+      ctaDisabled: !isEdwin && trialsLeft === 0,
+      highlight: isEdwin,
     },
     {
       name: 'Pro',
