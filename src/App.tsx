@@ -309,11 +309,11 @@ function App() {
   }, [userEmail, userPicture]);
 
   useEffect(() => {
-    // If a YouTube account is connected, use its email and picture
+    // If a YouTube account is connected, sync its identity info
     if (socialAccounts.youtube?.connected && socialAccounts.youtube.accounts?.[0]) {
       const acc = socialAccounts.youtube.accounts[0];
-      if (acc.email) setUserEmail(acc.email);
-      if (acc.picture) setUserPicture(acc.picture);
+      if (acc.username) setUserEmail(acc.username);
+      if (acc.avatar) setUserPicture(acc.avatar);
     }
   }, [socialAccounts.youtube]);
 
