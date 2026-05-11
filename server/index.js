@@ -1305,7 +1305,7 @@ app.post(['/api/long-video', '/api/short-video'], async (req, res) => {
           ];
           if (selectedMusic) pyArgs.push(selectedMusic);
 
-          const py = spawn('python', pyArgs);
+          const py = spawn('python3', pyArgs);
           let stderr = '';
           py.stderr.on('data', d => stderr += d.toString());
           py.on('close', code => {
@@ -1506,7 +1506,7 @@ app.post('/api/talking-head', async (req, res) => {
       ];
       if (selectedMusic) pyArgs.push(selectedMusic);
 
-      const py = spawn('python', pyArgs);
+      const py = spawn('python3', pyArgs);
 
       py.on('close', (code) => {
         if (code === 0) {
