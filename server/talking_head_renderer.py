@@ -75,9 +75,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             chunk_size = 2 if len(all_words[i]['word']) > 6 else 3
             chunk = all_words[i:i+chunk_size]
             
-            # Record timestamp for SFX pop
-            pop_timestamps.append(chunk[0]['start'])
-            
+            # SFX pop logic removed
             import random
             h_color = random.choice(highlight_colors)
             
@@ -128,15 +126,15 @@ def main():
     # 1. Prepare Background
     bg_dur = get_duration(bg_path)
     prepared_bg = os.path.join(tmpdir, "prepared_bg.mp4")
-    res = "720:1280"
+    # Speed up slightly (0.85*PTS) and use CROP TO FILL to avoid stretching
+    crop_fill = "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1"
     
-    # Speed up slightly (0.85*PTS) and remove zoompan to fix slowness
     if bg_dur < audio_dur:
         run(['ffmpeg', '-y', '-stream_loop', '-1', '-i', bg_path, '-t', str(audio_dur), 
-             '-vf', f'setpts=0.85*PTS,scale=1280:2276,crop={res},setsar=1', '-c:v', 'libx264', '-preset', 'ultrafast', prepared_bg])
+             '-vf', f'setpts=0.85*PTS,{crop_fill}', '-c:v', 'libx264', '-preset', 'ultrafast', prepared_bg])
     else:
         run(['ffmpeg', '-y', '-i', bg_path, '-t', str(audio_dur), 
-             '-vf', f'setpts=0.85*PTS,scale=1280:2276,crop={res},setsar=1', '-c:v', 'libx264', '-preset', 'ultrafast', prepared_bg])
+             '-vf', f'setpts=0.85*PTS,{crop_fill}', '-c:v', 'libx264', '-preset', 'ultrafast', prepared_bg])
 
     # 2. Build Filter Complex
     filter_complex = ""
@@ -192,16 +190,8 @@ def main():
         filter_complex += f"[{music_idx}:a]volume=0.4[bg_vol];[bg_vol][{narration_idx}:a]sidechaincompress=threshold=0.1:ratio=20:release=500[ducked];[{narration_idx}:a][ducked]amix=inputs=2:duration=first[a_mixed];"
         a_out_node = "[a_mixed]"
         
-    if sfx_in_idx != -1:
-        sfx_filter = ""
-        mix_inputs = [a_out_node]
-        for idx, t in enumerate(pop_times):
-            if idx > 100: break
-            delay = int(t * 1000)
-            sfx_filter += f"[{sfx_in_idx}:a]volume=0.1,adelay={delay}|{delay}[p{idx}];"
-            mix_inputs.append(f"[p{idx}]")
-        filter_complex += sfx_filter + "".join(mix_inputs) + f"amix=inputs={len(mix_inputs)}:dropout_transition=0:normalize=0[a_final];"
-        a_out_node = "[a_final]"
+    # SFX Pops Removed as requested
+    pass
 
     # Dynamic Vignette: Stronger for Ghost Stories/Documentaries, Lighter for others
     dark_keywords = ['ghost', 'horror', 'scary', 'mystery', 'documentary', 'history', 'dark', 'creepy', 'ancient', 'true crime']

@@ -84,9 +84,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                     chunk_size = 2 if len(words[i]['word']) > 6 else 3
                     chunk = words[i:i+chunk_size]
                     
-                    # Record timestamp for SFX pop
-                    pop_timestamps.append(chunk[0]['start'])
-                    
+                    # SFX pop logic removed
                     import random
                     h_color = random.choice(highlight_colors)
                     
@@ -237,26 +235,8 @@ def process_video(url, style, output_path_base, count=1, font_size=32, position=
             log("Rendering final video with Cinematic Filters & SFX...")
             e_ass = output_ass.replace('\\', '/').replace(':', '\\:').replace("'", "'\\\\''")
             
-            # Add SFX Pops
-            sfx_path = os.path.join(os.path.dirname(__file__), 'sfx', 'pop.wav')
+            # SFX Pops Removed as requested
             sfx_audio = temp_audio
-            if os.path.exists(sfx_path) and res.get('segments'):
-                log(f"Adding SFX pops to audio...")
-                sfx_filter_path = os.path.join(temp_dir, f"sfx_filter_{idx}.txt")
-                filter_str = ""
-                mix_inputs = ["[0:a]"]
-                for p_idx, t in enumerate(pop_times):
-                    if p_idx > 100: break
-                    delay = int(t * 1000)
-                    # Lower pop volume to 10% so it's not overpowering
-                    filter_str += f"[1:a]volume=0.1,adelay={delay}|{delay}[p{p_idx}];"
-                    mix_inputs.append(f"[p{p_idx}]")
-                filter_str += "".join(mix_inputs) + f"amix=inputs={len(mix_inputs)}:dropout_transition=0:normalize=0[aout]"
-                with open(sfx_filter_path, 'w') as f: f.write(filter_str)
-                
-                sfx_temp_audio = os.path.join(temp_dir, f"sfx_{idx}.mp3")
-                subprocess.run(["ffmpeg", "-y", "-i", temp_audio, "-i", sfx_path, "-filter_complex_script", sfx_filter_path, "-map", "[aout]", sfx_temp_audio], check=True)
-                sfx_audio = sfx_temp_audio
 
             # Visual Polish: Subtle Noise + Contrast (Removed Vignette as requested)
             visual_filters = f"ass='{e_ass}',noise=alls=5:allf=t+u,eq=contrast=1.1:saturation=1.2"

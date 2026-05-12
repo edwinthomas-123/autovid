@@ -92,9 +92,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             chunk_size = 2 if len(all_words[i]['word']) > 6 else 3
             chunk = all_words[i:i+chunk_size]
             
-            # Record timestamp for SFX pop
-            pop_timestamps.append(chunk[0]['start'])
-            
+            # SFX pop logic removed
             # Pick a random highlight color for this chunk
             import random
             h_color = random.choice(highlight_colors)
@@ -196,7 +194,7 @@ def main():
         cmd += [
              '-i', clip,
              '-t', str(per_clip),
-             '-vf', f'scale=1280:2276,crop={w}:{h},setsar=1,{zoom_filter}',
+             '-vf', f'scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},setsar=1,{zoom_filter}',
              '-r', '25', '-c:v', 'libx264', '-preset', 'fast', '-an',
              out_clip
         ]
@@ -275,32 +273,8 @@ def main():
     output_ass = os.path.join(tmpdir, "subs.ass")
     pop_times = create_ass_file(transcription, style, output_ass, font_size, position)
     
-    # ── Add SFX Pops ──────────────────────────
-    sfx_path = os.path.join(os.path.dirname(__file__), 'sfx', 'pop.wav')
+    # SFX Pops Removed as requested
     final_mixed = mixed
-    if os.path.exists(sfx_path) and pop_times:
-        print(f"Adding {len(pop_times)} SFX pops...", flush=True)
-        # We build a complex filter to add all pops
-        # To avoid command line limits, we use a filter_complex_script
-        sfx_filter_path = os.path.join(tmpdir, "sfx_filter.txt")
-        
-        # [0:a] is current mixed audio, [1:a] is pop sound
-        # We delay [1:a] for each pop_time and mix them
-        filter_str = ""
-        mix_inputs = ["[0:a]"]
-        for idx, t in enumerate(pop_times):
-            # Limit to first 100 pops to avoid massive filter chains
-            if idx > 100: break 
-            delay = int(t * 1000)
-            filter_str += f"[1:a]volume=0.1,adelay={delay}|{delay}[p{idx}];"
-            mix_inputs.append(f"[p{idx}]")
-        
-        filter_str += "".join(mix_inputs) + f"amix=inputs={len(mix_inputs)}:dropout_transition=0:normalize=0[aout]"
-        with open(sfx_filter_path, 'w') as f: f.write(filter_str)
-        
-        sfx_mixed = os.path.join(tmpdir, 'sfx_mixed.mp4')
-        run(['ffmpeg', '-y', '-i', mixed, '-i', sfx_path, '-filter_complex_script', sfx_filter_path, '-map', '0:v', '-map', '[aout]', '-c:v', 'copy', '-c:a', 'aac', sfx_mixed])
-        final_mixed = sfx_mixed
 
     # Use proper absolute path for ASS
     abs_ass = os.path.abspath(output_ass).replace('\\', '/').replace(':', '\\:')
