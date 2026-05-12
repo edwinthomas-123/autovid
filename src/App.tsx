@@ -746,7 +746,7 @@ function LandingPage({ onNavigate, styles }: { onNavigate: (view: string, mode?:
             <button 
               className="btn btn-primary" 
               style={{padding: '1.2rem 3rem', fontSize: '1.1rem', backgroundColor: '#0f172a'}} 
-              onClick={() => onNavigate('DASHBOARD')}
+              onClick={() => onNavigate('AUTH', 'signup')}
             >
               Get Started for Free
             </button>
@@ -882,7 +882,13 @@ function AuthPage({ mode, setMode, onSuccess, onBack, userEmail, setUserEmail }:
           <button 
             className="btn btn-primary" 
             style={{padding: '1.25rem', fontSize: '1rem', marginTop: '1rem', background: 'var(--dark)'}}
-            onClick={onSuccess}
+            onClick={() => {
+              if (userEmail.trim()) {
+                onSuccess();
+              } else {
+                alert('Please enter an email address or use Google Sign-in');
+              }
+            }}
           >
             {mode === 'login' ? 'Login to Dashboard' : 'Create Account'}
           </button>

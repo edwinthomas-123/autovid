@@ -149,7 +149,7 @@ CRITICAL: Return the response as a VALID JSON OBJECT.
       userPrompt = `Write a full YouTube video script about: "${topic}". Make it deeply engaging and narratively driven.`;
     }
 
-    const MASTER_GEMINI_KEY = 'AIzaSyAwu2R0TyOC_t6vuEY-4xG4iPrEyAzdn88';
+    const MASTER_GEMINI_KEY = process.env.GEMINI_API_KEY || '';
     const finalGeminiKey = geminiKey || MASTER_GEMINI_KEY;
     const keys = [finalGeminiKey].filter(k => k && k !== 'undefined' && k !== '');
 

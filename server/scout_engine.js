@@ -55,7 +55,7 @@ class ScoutEngine {
         }
 
         // 2. Use Gemini with rotation and fallback
-        const MASTER_GEMINI_KEY = 'AIzaSyAwu2R0TyOC_t6vuEY-4xG4iPrEyAzdn88';
+        const MASTER_GEMINI_KEY = process.env.GEMINI_API_KEY || '';
         const finalGeminiKey = geminiKey || MASTER_GEMINI_KEY;
         const keys = [finalGeminiKey].filter(k => k && k !== 'undefined');
 
