@@ -174,7 +174,7 @@ function App() {
   const [accountExpanded, setAccountExpanded] = useState(false);
 
   // Social media accounts state
-  const [socialAccounts, setSocialAccounts] = useState<Record<string, { connected: boolean; accounts: { id: string; username: string; avatar: string }[] }>>({
+  const [socialAccounts, setSocialAccounts] = useState<Record<string, { connected: boolean; accounts: { id: string; username: string; avatar: string; email?: string }[] }>>({
     youtube: { connected: false, accounts: [] },
     instagram: { connected: false, accounts: [] },
     facebook: { connected: false, accounts: [] },
@@ -3554,8 +3554,8 @@ function DriveAutomator({ folderId, setFolderId, frequency, setFrequency, isActi
 }
 
 function SocialAccounts({ accounts, setAccounts, onConnect }: {
-  accounts: Record<string, { connected: boolean; accounts: { id: string; username: string; avatar: string }[] }>;
-  setAccounts: React.Dispatch<React.SetStateAction<Record<string, { connected: boolean; accounts: { id: string; username: string; avatar: string }[] }>>>;
+  accounts: Record<string, { connected: boolean; accounts: { id: string; username: string; avatar: string; email?: string }[] }>;
+  setAccounts: React.Dispatch<React.SetStateAction<Record<string, { connected: boolean; accounts: { id: string; username: string; avatar: string; email?: string }[] }>>>;
   onConnect: () => void;
 }) {
   const [connectingId, setConnectingId] = useState<string | null>(null);
@@ -4057,7 +4057,7 @@ function UploadModal({ videoUrl, topic, script, accounts, onClose }: {
     videoUrl: string; 
     topic: string; 
     script: string; 
-    accounts: Record<string, { connected: boolean; accounts: { id: string; username: string; avatar: string }[] }>;
+    accounts: Record<string, { connected: boolean; accounts: { id: string; username: string; avatar: string; email?: string }[] }>;
     onClose: () => void;
 }) {
     const [platform, setPlatform] = useState('youtube');
