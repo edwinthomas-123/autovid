@@ -166,7 +166,7 @@ function VoiceSelector({ selectedVoice, onSelect }: { selectedVoice: string, onS
 }
 
 function App() {
-  const [currentView, setCurrentView] = useState('LANDING'); // LANDING, DASHBOARD, or AUTH
+  const [currentView, setCurrentView] = useState(() => localStorage.getItem('userEmail') ? 'DASHBOARD' : 'LANDING'); // LANDING, DASHBOARD, or AUTH
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [activeMenu, setActiveMenu] = useState('CREATE_SERIES');
   const [creationMode, setCreationMode] = useState<'SERIES' | 'AUTOMATION'>('SERIES');
@@ -1956,7 +1956,7 @@ function ShortVideo({
   const error = activeJob?.status === 'failed' ? activeJob.error : null;
 
   const handleGenerateScript = async () => {
-    if (!topic || (!openAiKey && !geminiKey)) return;
+    if (!topic) return;
     if (checkGate && !checkGate()) return;
     setIsGeneratingScript(true);
     setScript('');
@@ -2129,12 +2129,6 @@ function ShortVideo({
             <h2 className="section-title">AI Short Script <span style={{fontSize: '0.8rem', background: '#e0f2fe', color: '#0369a1', padding: '0.2rem 0.6rem', borderRadius: '1rem', marginLeft: '0.5rem'}}>50-60 Seconds</span></h2>
             <p className="section-desc">Define your topic and AI will craft a high-retention short script.</p>
 
-            {(!openAiKey && !geminiKey) && (
-              <div style={{background:'#fcfdfe',border:'1px solid #f1f5f9',padding:'1rem',borderRadius:'0.5rem',marginBottom:'1.5rem',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                <span style={{fontSize:'0.8rem',color:'var(--text-muted)'}}>OpenAI or Gemini API key required.</span>
-                <button className="btn" style={{fontSize:'0.75rem', fontWeight: 700}} onClick={onGoToKeys}>Settings</button>
-              </div>
-            )}
 
             <div style={{display:'flex',gap:'1rem',marginBottom:'1.5rem'}}>
               <input
@@ -2148,7 +2142,7 @@ function ShortVideo({
               <button
                 className="btn btn-primary"
                 onClick={handleGenerateScript}
-                disabled={!topic || (!openAiKey && !geminiKey) || isGeneratingScript}
+                disabled={!topic || isGeneratingScript}
               >
                 {isGeneratingScript ? 'Generating...' : 'Generate Script'}
               </button>
@@ -2522,7 +2516,7 @@ function LongVideo({
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   const handleGenerateScript = async () => {
-    if (!topic || (!openAiKey && !geminiKey)) return;
+    if (!topic) return;
     if (checkGate && !checkGate()) return;
     setIsGeneratingScript(true);
     setScript('');
@@ -2641,12 +2635,6 @@ function LongVideo({
             <h2 className="section-title">AI Script Generator</h2>
             <p className="section-desc">Define your topic and AI will craft a professional narration script.</p>
 
-            {(!openAiKey && !geminiKey) && (
-              <div style={{background:'#fcfdfe',border:'1px solid #f1f5f9',padding:'1rem',borderRadius:'0.5rem',marginBottom:'1.5rem',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                <span style={{fontSize:'0.8rem',color:'var(--text-muted)'}}>OpenAI or Gemini API key required for generation.</span>
-                <button className="btn" style={{fontSize:'0.75rem', fontWeight: 700}} onClick={onGoToKeys}>Settings</button>
-              </div>
-            )}
 
             <div style={{display:'flex',gap:'1rem',marginBottom:'1.5rem'}}>
               <input
@@ -2660,7 +2648,7 @@ function LongVideo({
               <button
                 className="btn btn-primary"
                 onClick={handleGenerateScript}
-                disabled={!topic || (!openAiKey && !geminiKey) || isGeneratingScript}
+                disabled={!topic || isGeneratingScript}
               >
                 {isGeneratingScript ? 'Generating...' : 'Generate Script'}
               </button>
