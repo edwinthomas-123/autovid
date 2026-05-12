@@ -1992,7 +1992,7 @@ function ShortVideo({
 
   const handleGenerateVisuals = async (targetScript?: string) => {
     const s = targetScript || script;
-    if (!s || !pexelsKey) return;
+    if (!s) return;
     setIsGeneratingVisuals(true);
     try {
       const res = await fetch(`${API_BASE_URL}/api/talking-head/generate-visuals`, {
@@ -2031,7 +2031,7 @@ function ShortVideo({
   };
 
   const handleRender = async () => {
-    if (!script || !elevenLabsKey || !pexelsKey) return;
+    if (!script) return;
     const endpoint = videoType === 'TALKING_HEAD' ? '/api/talking-head' : '/api/short-video';
     try {
       const res = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -2552,7 +2552,7 @@ function LongVideo({
 
   const handleGenerateVisuals = async (targetScript?: string) => {
     const s = targetScript || script;
-    if (!s || !pexelsKey) return;
+    if (!s) return;
     setIsGeneratingVisuals(true);
     try {
       const res = await fetch(`${API_BASE_URL}/api/talking-head/generate-visuals`, {
@@ -2586,7 +2586,7 @@ function LongVideo({
   };
 
   const handleRender = async () => {
-    if (!script || !elevenLabsKey || !pexelsKey) return;
+    if (!script) return;
     try {
       const res = await fetch(`${API_BASE_URL}/api/long-video`, {
         method: 'POST',
@@ -4513,7 +4513,7 @@ function AIScout({ geminiKey, elevenLabsKey, onGoToKeys, activeJobs, addJob, cle
 
   const handleRun = async (targetUrl?: string) => {
     const finalUrl = targetUrl || url;
-    if (!finalUrl || !geminiKey) return;
+    if (!finalUrl) return;
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/scout/run`, {
@@ -4614,7 +4614,7 @@ function AIScout({ geminiKey, elevenLabsKey, onGoToKeys, activeJobs, addJob, cle
               <button 
                 className="btn btn-primary" 
                 onClick={() => handleRun()}
-                disabled={!url || !geminiKey || isProcessing}
+                disabled={!url || isProcessing}
               >
                 {isProcessing ? 'Scouting...' : 'Start Scouting'}
               </button>
