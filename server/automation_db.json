@@ -6,6 +6,36 @@
   "postedIds": [],
   "logs": [
     {
+      "time": "12/5/2026, 8:44:53 pm",
+      "event": "Sync Error: Google token missing. Please run the login script first.",
+      "status": "error"
+    },
+    {
+      "time": "12/5/2026, 8:44:53 pm",
+      "event": "Starting background clips sync...",
+      "status": "info"
+    },
+    {
+      "time": "12/5/2026, 8:34:27 pm",
+      "event": "Sync Error: Google token missing. Please run the login script first.",
+      "status": "error"
+    },
+    {
+      "time": "12/5/2026, 8:34:27 pm",
+      "event": "Starting background clips sync...",
+      "status": "info"
+    },
+    {
+      "time": "12/5/2026, 8:25:50 pm",
+      "event": "Sync Error: Google token missing. Please run the login script first.",
+      "status": "error"
+    },
+    {
+      "time": "12/5/2026, 8:25:50 pm",
+      "event": "Starting background clips sync...",
+      "status": "info"
+    },
+    {
       "time": "12/5/2026, 8:22:34 pm",
       "event": "Sync Error: Google token missing. Please run the login script first.",
       "status": "error"
@@ -222,36 +252,6 @@
     },
     {
       "time": "10/5/2026, 2:00:00 pm",
-      "event": "Starting background clips sync...",
-      "status": "info"
-    },
-    {
-      "time": "10/5/2026, 1:00:00 pm",
-      "event": "Sync Error: Google token missing. Please run the login script first.",
-      "status": "error"
-    },
-    {
-      "time": "10/5/2026, 1:00:00 pm",
-      "event": "Starting background clips sync...",
-      "status": "info"
-    },
-    {
-      "time": "10/5/2026, 12:00:00 pm",
-      "event": "Sync Error: Google token missing. Please run the login script first.",
-      "status": "error"
-    },
-    {
-      "time": "10/5/2026, 12:00:00 pm",
-      "event": "Starting background clips sync...",
-      "status": "info"
-    },
-    {
-      "time": "9/5/2026, 10:00:00 pm",
-      "event": "Sync Error: Google token missing. Please run the login script first.",
-      "status": "error"
-    },
-    {
-      "time": "9/5/2026, 10:00:00 pm",
       "event": "Starting background clips sync...",
       "status": "info"
     }

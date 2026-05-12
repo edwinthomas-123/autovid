@@ -1,5 +1,15 @@
 const express = require('express');
 const app = express();
+const multer = require('multer');
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, 'background_clips'))
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname)
+    }
+});
+const upload = multer({ storage: storage });
 const cors = require('cors');
 const { spawn } = require('child_process');
 const path = require('path');
@@ -589,8 +599,10 @@ app.use('/test_assets', express.static(TEST_ASSETS_DIR));
 function downloadFile(url, dest) {
   return new Promise((resolve, reject) => {
     const proto = url.startsWith('https') ? https : http;
+    console.log(`[DOWNLOADER] Starting download: ${url.substring(0, 50)}...`);
     const request = proto.get(url, res => {
       if (res.statusCode === 302 || res.statusCode === 301) {
+        console.log(`[DOWNLOADER] Redirecting to: ${res.headers.location.substring(0, 50)}...`);
         return downloadFile(res.headers.location, dest).then(resolve).catch(reject);
       }
       
@@ -640,11 +652,22 @@ function downloadFile(url, dest) {
 async function verifyMedia(path) {
   return new Promise((resolve) => {
     const ff = spawn('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', path]);
+    
+    const timeout = setTimeout(() => {
+        ff.kill();
+        resolve(false);
+    }, 10000);
+
     let output = '';
     ff.stdout.on('data', d => output += d);
     ff.on('close', code => {
+      clearTimeout(timeout);
       if (code === 0 && output.trim().length > 0) resolve(true);
       else resolve(false);
+    });
+    ff.on('error', () => {
+        clearTimeout(timeout);
+        resolve(false);
     });
   });
 }

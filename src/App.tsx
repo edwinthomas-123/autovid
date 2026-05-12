@@ -476,12 +476,7 @@ function App() {
           >
             Long Videos
           </div>
-          <div 
-            className={`nav-item ${activeMenu === 'DRIVE_AUTOMATOR' ? 'active' : ''}`}
-            onClick={() => setActiveMenu('DRIVE_AUTOMATOR')}
-          >
-            Drive Automator
-          </div>
+
           <div 
             className={`nav-item ${activeMenu === 'AI_SCOUT' ? 'active' : ''}`}
             onClick={() => setActiveMenu('AI_SCOUT')}
@@ -683,16 +678,6 @@ function App() {
               emailPass={emailPass} setEmailPass={setEmailPass}
               emailReceiver={emailReceiver} setEmailReceiver={setEmailReceiver}
               emailEnabled={emailEnabled} setEmailEnabled={setEmailEnabled}
-            />
-          )}
-          {activeMenu === 'DRIVE_AUTOMATOR' && (
-            <DriveAutomator 
-              folderId={driveFolderId} 
-              setFolderId={setDriveFolderId}
-              frequency={dailyFrequency}
-              setFrequency={setDailyFrequency}
-              isActive={isAutomatorActive}
-              setIsActive={setIsAutomatorActive}
             />
           )}
           {activeMenu === 'AI_SCOUT' && (
@@ -2212,14 +2197,55 @@ function ShortVideo({
                     style={{fontSize: '0.7rem', color: 'var(--primary)', borderColor: 'var(--primary)'}} 
                     onClick={async (e) => {
                       const btn = e.currentTarget;
+                  <button 
+                    className="btn" 
+                    style={{fontSize: '0.7rem', background: 'var(--dark)', color: 'white'}} 
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.multiple = true;
+                      input.accept = 'video/*';
+                      input.onchange = async (e: any) => {
+                        const files = e.target.files;
+                        if (!files || files.length === 0) return;
+                        
+                        const formData = new FormData();
+                        for (let i = 0; i < files.length; i++) {
+                          formData.append('clips', files[i]);
+                        }
+                        
+                        const btn = e.target;
+                        alert('Uploading ' + files.length + ' videos... Please wait.');
+                        
+                        try {
+                          const res = await fetch(`${API_BASE_URL}/api/upload-background`, {
+                            method: 'POST',
+                            body: formData
+                          });
+                          const data = await res.json();
+                          alert(data.message || 'Upload complete!');
+                        } catch (err) {
+                          alert('Upload failed. Try smaller files.');
+                        }
+                      };
+                      input.click();
+                    }}
+                  >
+                    📁 Upload Videos
+                  </button>
+                  <button 
+                    className="btn" 
+                    style={{fontSize: '0.7rem'}} 
+                    onClick={async (e) => {
+                      const btn = e.currentTarget;
                       const original = btn.innerText;
                       btn.innerText = 'Syncing...';
                       try {
                         const res = await fetch(`${API_BASE_URL}/api/automation/sync-background`, { method: 'POST' });
                         const data = await res.json();
-                        alert(data.message || 'Sync complete! If you still see the error, refresh Step 3.');
+                        alert(data.message || 'Sync complete!');
                       } catch (err) {
-                        alert('Sync failed. Is your Google account connected?');
+                        alert('Sync failed.');
                       }
                       btn.innerText = original;
                     }}
