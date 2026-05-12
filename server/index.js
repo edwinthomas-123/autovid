@@ -42,7 +42,7 @@ const loadGoogleConfig = () => {
         if (fs.existsSync(secretPath)) {
             const content = JSON.parse(fs.readFileSync(secretPath));
             const keys = content.web || content.installed;
-            const redirectUri = keys.redirect_uris.find(u => u.includes(BASE_URL)) || keys.redirect_uris[0] || `${BASE_URL}/api/auth/google/callback`;
+            const redirectUri = `${BASE_URL}/api/auth/google/callback`;
             oauth2Client = new google.auth.OAuth2(
                 keys.client_id,
                 keys.client_secret,
