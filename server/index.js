@@ -1028,8 +1028,8 @@ app.post(['/api/long-video', '/api/short-video'], async (req, res) => {
     }
   }
 
-  if (!script || (!elevenLabsKey && !piperTts.VOICE_MODELS[voice]) || !pexelsKey)
-    return res.status(400).json({ error: 'script, and pexelsKey are required. elevenLabsKey is required if not using a free Piper voice.' });
+  if (!script)
+    return res.status(400).json({ error: 'script is required' });
 
   const jobId = createJob(isShort ? 'SHORT_VIDEO' : 'LONG_VIDEO', { topic, script, voice });
   res.json({ success: true, jobId });
@@ -1354,8 +1354,8 @@ app.post('/api/talking-head', async (req, res) => {
   const elevenLabsKey = keysDb.elevenLabsKey || process.env.ELEVENLABS_API_KEY || req.body.elevenLabsKey;
   const pexelsKey = keysDb.pexelsKey || process.env.PEXELS_API_KEY || req.body.pexelsKey;
   
-  if (!script || (!elevenLabsKey && !piperTts.VOICE_MODELS[voice]) || !pexelsKey)
-    return res.status(400).json({ error: 'script, and pexelsKey are required' });
+  if (!script)
+    return res.status(400).json({ error: 'script is required' });
 
   const jobId = createJob('TALKING_HEAD', { topic, script, voice });
   res.json({ success: true, jobId });
