@@ -15,6 +15,7 @@ services:
       - ./server/google_token.json:/app/google_token.json
       - ./server/output:/app/output
       - ./server/test_assets:/app/test_assets
+      - ./server/background_clips:/app/background_clips
     environment:
       - BASE_URL=https://wellvid.tech
       - PORT=3001
