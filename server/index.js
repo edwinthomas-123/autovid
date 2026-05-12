@@ -1400,13 +1400,14 @@ app.post('/api/talking-head', async (req, res) => {
       });
 
       // 2. Get Background
-      updateJob(jobId, { stage: 'Picking background clip...', progress: 30 });
+      console.log(`[VIDEO] Checking background clips in: ${BACKGROUND_CLIPS_DIR}`);
       const localClips = fs.readdirSync(BACKGROUND_CLIPS_DIR).filter(f => f.endsWith('.mp4'));
+      console.log(`[VIDEO] Found ${localClips.length} clips:`, localClips);
       let bgPath = '';
       if (localClips.length > 0) {
         bgPath = path.join(BACKGROUND_CLIPS_DIR, localClips[Math.floor(Math.random() * localClips.length)]);
       } else {
-        throw new Error('No background clips found. Please sync with Drive first.');
+        throw new Error(`No background clips found in ${BACKGROUND_CLIPS_DIR}. Please sync with Drive first.`);
       }
 
       // 3. Extract Keywords and Fetch Images
