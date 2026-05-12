@@ -543,14 +543,7 @@ function App() {
             History
           </div>
 
-          {userEmail === 'edwinmoothedan2006@gmail.com' && (
-            <div 
-              className={`nav-item ${activeMenu === 'API_KEYS' ? 'active' : ''}`}
-              onClick={() => setActiveMenu('API_KEYS')}
-            >
-              Admin Settings
-            </div>
-          )}
+          {/* Admin Settings Removed */}
 
 
           <div style={{ marginTop: 'auto', paddingTop: '2rem', borderTop: '1px solid #f1f5f9' }}>
