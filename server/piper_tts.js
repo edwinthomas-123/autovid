@@ -244,12 +244,12 @@ async function synthesizeEdge(text, voiceId, outputPath, options = {}) {
         const { rate, volume, pitch } = { ...voice.settings, ...options };
         const args = [pythonScript, text, voice.voice, outputPath, rate || '+0%', volume || '+0%', pitch || '+0Hz'];
         const pyCmd = process.platform === 'win32' ? 'python' : 'python3';
-        const process = spawn(pyCmd, args);
+        const pythonProcess = spawn(pyCmd, args);
         
         let output = '';
-        process.stdout.on('data', d => output += d.toString());
-        process.stderr.on('data', d => output += d.toString());
-        process.on('close', (code) => {
+        pythonProcess.stdout.on('data', d => output += d.toString());
+        pythonProcess.stderr.on('data', d => output += d.toString());
+        pythonProcess.on('close', (code) => {
             if (code === 0) resolve(outputPath);
             else reject(new Error(`Edge-TTS failed (code ${code}): ${output}`));
         });
@@ -268,12 +268,12 @@ async function synthesizeKokoro(text, voiceId, outputPath, options = {}) {
         const { speed, lang } = { ...voice.settings, ...options };
         const args = [pythonScript, text, voice.voice, outputPath, speed.toString(), lang || 'en-us'];
         const pyCmd = process.platform === 'win32' ? 'python' : 'python3';
-        const process = spawn(pyCmd, args);
+        const pythonProcess = spawn(pyCmd, args);
         
         let output = '';
-        process.stdout.on('data', d => output += d.toString());
-        process.stderr.on('data', d => output += d.toString());
-        process.on('close', (code) => {
+        pythonProcess.stdout.on('data', d => output += d.toString());
+        pythonProcess.stderr.on('data', d => output += d.toString());
+        pythonProcess.on('close', (code) => {
             if (code === 0) resolve(outputPath);
             else reject(new Error(`Kokoro failed (code ${code}): ${output}`));
         });

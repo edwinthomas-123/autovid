@@ -17,6 +17,11 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+
+app.get('/', (req, res) => {
+    console.log('[NETWORK] Received ping from browser!');
+    res.send('AutoVid Server is Alive!');
+});
 app.use(session({
     secret: 'autovid-secret-key',
     resave: false,
@@ -747,9 +752,8 @@ CRITICAL: Return ONLY a valid JSON object matching this structure exactly:
 // ─────────────────────────────────────────────
 // POST /api/clip  (existing Clipper feature)
 // ─────────────────────────────────────────────
-app.post('/api/render-short', async (req, res) => {
-    console.log('🚨 [RENDER] BUTTON CLICKED! Received request for short video.');
-    const { topic, script, voiceId, style, backgroundVideoUrl, overlayImage, clipCount, captionSize, captionPosition } = req.body;
+app.post('/api/clip', async (req, res) => {
+  const { url, style, count, captionSize, captionPosition } = req.body;
   if (!url) return res.status(400).json({ error: 'URL is required' });
   const clipCount = parseInt(count) || 1;
 
@@ -1019,6 +1023,7 @@ Aim for 800-1200 words. Make it engaging, informative, and flow naturally as nar
 // ─────────────────────────────────────────────
 app.post(['/api/long-video', '/api/short-video'], async (req, res) => {
   const isShort = req.path === '/api/short-video';
+  console.log(`🚨 [RENDER] ${isShort ? 'SHORT' : 'LONG'} VIDEO REQUEST RECEIVED! Topic: ${req.body.topic}`);
   const { script, voice, captionStyle, topic, isTest, captionSize = 38, captionPosition = 'center' } = req.body;
   const geminiKey = req.body.geminiKey || keysDb.geminiKey || process.env.GEMINI_API_KEY;
   const elevenLabsKey = req.body.elevenLabsKey || keysDb.elevenLabsKey || process.env.ELEVENLABS_API_KEY || 'sk_eb749e2f22c96c9af0ab15df0b4791ad782764ea9f4311d4';
@@ -1675,11 +1680,6 @@ app.post('/api/generate-image-gemini', async (req, res) => {
   }
 });
 
-
-app.get('/', (req, res) => {
-    console.log('[NETWORK] Received ping from browser!');
-    res.send('AutoVid Server is Alive!');
-});
 
 app.post('/api/automation/sync-background', async (req, res) => {
     try {
