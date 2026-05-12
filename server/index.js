@@ -1674,7 +1674,8 @@ app.get('/api/auth/accounts', (req, res) => {
                 accounts: tokens.map(t => ({
                     id: t.id,
                     username: t.username,
-                    avatar: t.avatar
+                    email: t.email,
+                    avatar: t.avatar || t.picture
                 }))
             };
         } else {

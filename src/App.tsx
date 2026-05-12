@@ -312,7 +312,8 @@ function App() {
     // If a YouTube account is connected, sync its identity info
     if (socialAccounts.youtube?.connected && socialAccounts.youtube.accounts?.[0]) {
       const acc = socialAccounts.youtube.accounts[0];
-      if (acc.username) setUserEmail(acc.username);
+      if (acc.email) setUserEmail(acc.email);
+      else if (acc.username && !userEmail) setUserEmail(acc.username);
       if (acc.avatar) setUserPicture(acc.avatar);
     }
   }, [socialAccounts.youtube]);
