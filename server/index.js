@@ -1010,7 +1010,9 @@ Aim for 800-1200 words. Make it engaging, informative, and flow naturally as nar
 // ─────────────────────────────────────────────
 app.post(['/api/long-video', '/api/short-video'], async (req, res) => {
   const isShort = req.path === '/api/short-video';
-  const { script, voice, captionStyle, elevenLabsKey, pexelsKey, topic, isTest, captionSize = 38, captionPosition = 'center' } = req.body;
+  const { script, voice, captionStyle, topic, isTest, captionSize = 38, captionPosition = 'center' } = req.body;
+  const elevenLabsKey = keysDb.elevenLabsKey || process.env.ELEVENLABS_API_KEY || req.body.elevenLabsKey;
+  const pexelsKey = keysDb.pexelsKey || process.env.PEXELS_API_KEY || req.body.pexelsKey;
   const orientation = isShort ? 'portrait' : (req.body.orientation || 'landscape');
   
   // Cache check for 'tajmahal' - only if explicitly requested or in a 'fast' mode
@@ -1025,8 +1027,8 @@ app.post(['/api/long-video', '/api/short-video'], async (req, res) => {
     }
   }
 
-  if (!script || !elevenLabsKey || !pexelsKey)
-    return res.status(400).json({ error: 'script, elevenLabsKey, and pexelsKey are required' });
+  if (!script || (!elevenLabsKey && !piperTts.VOICE_MODELS[voice]) || !pexelsKey)
+    return res.status(400).json({ error: 'script, and pexelsKey are required. elevenLabsKey is required if not using a free Piper voice.' });
 
   const jobId = createJob(isShort ? 'SHORT_VIDEO' : 'LONG_VIDEO', { topic, script, voice });
   res.json({ success: true, jobId });
@@ -1347,10 +1349,12 @@ app.post(['/api/long-video', '/api/short-video'], async (req, res) => {
 // 4. Render with Overlays
 // ─────────────────────────────────────────────
 app.post('/api/talking-head', async (req, res) => {
-  const { script, voice, captionStyle, elevenLabsKey, pexelsKey, topic, captionSize = 38, captionPosition = 'center', avatarId = 0 } = req.body;
+  const { script, voice, captionStyle, topic, captionSize = 38, captionPosition = 'center', avatarId = 0 } = req.body;
+  const elevenLabsKey = keysDb.elevenLabsKey || process.env.ELEVENLABS_API_KEY || req.body.elevenLabsKey;
+  const pexelsKey = keysDb.pexelsKey || process.env.PEXELS_API_KEY || req.body.pexelsKey;
   
-  if (!script || !elevenLabsKey || !pexelsKey)
-    return res.status(400).json({ error: 'script, elevenLabsKey, and pexelsKey are required' });
+  if (!script || (!elevenLabsKey && !piperTts.VOICE_MODELS[voice]) || !pexelsKey)
+    return res.status(400).json({ error: 'script, and pexelsKey are required' });
 
   const jobId = createJob('TALKING_HEAD', { topic, script, voice });
   res.json({ success: true, jobId });
@@ -1528,7 +1532,8 @@ app.post('/api/talking-head', async (req, res) => {
 // ─────────────────────────────────────────────
 
 app.post('/api/talking-head/generate-visuals', async (req, res) => {
-  const { script, pexelsKey, type = 'image' } = req.body;
+  const { script, type = 'image' } = req.body;
+  const pexelsKey = keysDb.pexelsKey || process.env.PEXELS_API_KEY || req.body.pexelsKey;
   if (!script || !pexelsKey) return res.status(400).json({ error: 'script and pexelsKey required' });
 
   try {
@@ -2107,7 +2112,9 @@ app.get('/api/scout/tools', (req, res) => {
 });
 
 app.post('/api/scout/run', async (req, res) => {
-    const { url, geminiKey, elevenLabsKey, voice } = req.body;
+    const { url, voice } = req.body;
+    const geminiKey = keysDb.geminiKey || process.env.GEMINI_API_KEY || req.body.geminiKey;
+    const elevenLabsKey = keysDb.elevenLabsKey || process.env.ELEVENLABS_API_KEY || req.body.elevenLabsKey;
     if (!url || !geminiKey) return res.status(400).json({ error: 'URL and Gemini Key required' });
 
     const jobId = createJob('AI_SCOUT', { url });
