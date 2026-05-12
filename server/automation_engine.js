@@ -85,9 +85,9 @@ class AutomationEngine {
 
             const folderId = folders[0].id;
 
-            // 2. List videos
+            // 2. List videos (Permissive search for .mp4, .mov, or video mimeType)
             const filesRes = await drive.files.list({
-                q: `'${folderId}' in parents and mimeType contains 'video/' and trashed = false`,
+                q: `'${folderId}' in parents and (mimeType contains 'video/' or name contains '.mp4' or name contains '.mov') and trashed = false`,
                 fields: 'files(id, name, webContentLink)',
             });
 
