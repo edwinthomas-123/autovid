@@ -701,7 +701,7 @@ async function fetchAiKeyword(text, key) {
 
 async function generateClipperMetadata(transcriptText, geminiKey) {
   try {
-    const MASTER_GEMINI_KEY = process.env.GEMINI_API_KEY || '';
+    const MASTER_GEMINI_KEY = keysDb.geminiKey || process.env.GEMINI_API_KEY || '';
     const finalGeminiKey = geminiKey || MASTER_GEMINI_KEY;
     
     const prompt = `You are a viral Short-form video expert. I have a video clip with the following transcript:
@@ -851,7 +851,7 @@ app.post('/api/clip', async (req, res) => {
 // ─────────────────────────────────────────────
 app.post('/api/generate-script', async (req, res) => {
   const { topic, openAiKey, geminiKey } = req.body;
-  const MASTER_GEMINI_KEY = process.env.GEMINI_API_KEY || '';
+  const MASTER_GEMINI_KEY = keysDb.geminiKey || process.env.GEMINI_API_KEY || '';
   const finalGeminiKey = geminiKey || MASTER_GEMINI_KEY;
   const keys = [finalGeminiKey].filter(k => k && k !== 'undefined' && k !== '');
   console.log(`[SCRIPT] Generating script for: ${topic} using master key.`);
@@ -885,7 +885,7 @@ Do NOT include stage directions, timestamps, or speaker labels. Plain narration 
 Aim for 800-1200 words. Make it engaging, informative, and flow naturally as narration.`;
     }
 
-    const MASTER_GEMINI_KEY = process.env.GEMINI_API_KEY || '';
+    const MASTER_GEMINI_KEY = keysDb.geminiKey || process.env.GEMINI_API_KEY || '';
     const finalGeminiKey = geminiKey || MASTER_GEMINI_KEY;
     const keys = [finalGeminiKey].filter(k => k && k !== 'undefined' && k !== '');
 

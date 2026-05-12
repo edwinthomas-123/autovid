@@ -149,7 +149,12 @@ CRITICAL: Return the response as a VALID JSON OBJECT.
       userPrompt = `Write a full YouTube video script about: "${topic}". Make it deeply engaging and narratively driven.`;
     }
 
-    const MASTER_GEMINI_KEY = process.env.GEMINI_API_KEY || '';
+    let keysDbObj = { geminiKey: '' };
+    try {
+        const dbPath = require('path').join(__dirname, 'keys_db.json');
+        if (require('fs').existsSync(dbPath)) keysDbObj = JSON.parse(require('fs').readFileSync(dbPath));
+    } catch(e) {}
+    const MASTER_GEMINI_KEY = keysDbObj.geminiKey || process.env.GEMINI_API_KEY || '';
     const finalGeminiKey = geminiKey || MASTER_GEMINI_KEY;
     const keys = [finalGeminiKey].filter(k => k && k !== 'undefined' && k !== '');
 

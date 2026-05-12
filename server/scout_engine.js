@@ -55,7 +55,12 @@ class ScoutEngine {
         }
 
         // 2. Use Gemini with rotation and fallback
-        const MASTER_GEMINI_KEY = process.env.GEMINI_API_KEY || '';
+        let keysDbObj = { geminiKey: '' };
+        try {
+            const dbPath = require('path').join(__dirname, 'keys_db.json');
+            if (require('fs').existsSync(dbPath)) keysDbObj = JSON.parse(require('fs').readFileSync(dbPath));
+        } catch(e) {}
+        const MASTER_GEMINI_KEY = keysDbObj.geminiKey || process.env.GEMINI_API_KEY || '';
         const finalGeminiKey = geminiKey || MASTER_GEMINI_KEY;
         const keys = [finalGeminiKey].filter(k => k && k !== 'undefined');
 
