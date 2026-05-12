@@ -12,7 +12,9 @@ const captionStyles = [
   { id: 'MINIMAL', name: 'Minimalist', example: 'Clean and simple captions', bg: '#ffffff', color: '#64748b' }
 ];
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://127.0.0.1:3001'
+  : 'https://wellvid.tech';
 
 const voices = [
   // --- NATURAL (Edge-TTS) ---

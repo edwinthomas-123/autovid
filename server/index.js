@@ -765,10 +765,17 @@ app.post('/api/clip', async (req, res) => {
       const outputFilenameBase = `clip_${timestamp}.mp4`;
       const outputPathBase = path.join(OUTPUT_DIR, outputFilenameBase);
 
-      const pythonProcess = spawn('python3', [
+      const pyCmd = process.platform === 'win32' ? 'python' : 'python3';
+      console.log(`[RENDERER] Spawning: ${pyCmd} ${path.join(__dirname, 'processor.py')} ${url} ${style}`);
+      const pythonProcess = spawn(pyCmd, [
         path.join(__dirname, 'processor.py'),
         url, style, outputPathBase, clipCount, captionSize || 32, captionPosition || 'center'
       ]);
+
+      pythonProcess.on('error', (err) => {
+        console.error(`[RENDERER] CRITICAL ERROR: Failed to start Python process!`, err);
+        updateJob(jobId, { status: 'failed', error: `System Error: ${err.message}. Make sure Python is installed and in your PATH.` });
+      });
 
       let errorData = '';
       pythonProcess.stderr.on('data', d => { errorData += d.toString(); });
@@ -1309,7 +1316,8 @@ app.post(['/api/long-video', '/api/short-video'], async (req, res) => {
           ];
           if (selectedMusic) pyArgs.push(selectedMusic);
 
-          const py = spawn('python3', pyArgs);
+          const pyCmd = process.platform === 'win32' ? 'python' : 'python3';
+          const py = spawn(pyCmd, pyArgs);
           let stderr = '';
           py.stderr.on('data', d => stderr += d.toString());
           py.on('close', code => {
@@ -1514,7 +1522,8 @@ app.post('/api/talking-head', async (req, res) => {
       ];
       if (selectedMusic) pyArgs.push(selectedMusic);
 
-      const py = spawn('python3', pyArgs);
+      const pyCmd = process.platform === 'win32' ? 'python' : 'python3';
+      const py = spawn(pyCmd, pyArgs);
 
       py.on('close', (code) => {
         if (code === 0) {
@@ -1665,6 +1674,11 @@ app.post('/api/generate-image-gemini', async (req, res) => {
   }
 });
 
+
+app.get('/', (req, res) => {
+    console.log('[NETWORK] Received ping from browser!');
+    res.send('AutoVid Server is Alive!');
+});
 
 app.post('/api/automation/sync-background', async (req, res) => {
     try {
@@ -2221,7 +2235,8 @@ app.post('/api/scout/run', async (req, res) => {
             const outputPath = path.join(OUTPUT_DIR, outputFilename);
 
             await new Promise((resolve, reject) => {
-                const py = spawn('python3', [
+                const pyCmd = process.platform === 'win32' ? 'python' : 'python3';
+                const py = spawn(pyCmd, [
                     path.join(__dirname, 'scout_renderer.py'),
                     recordingPath, audioPath, outputPath, analysis.voiceover
                 ]);
