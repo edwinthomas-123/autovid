@@ -2430,4 +2430,29 @@ app.post('/api/upload', async (req, res) => {
     })();
 });
 
+// Auto-cleanup: Delete output files older than 24 hours every hour
+setInterval(() => {
+    try {
+        const outputDir = path.join(__dirname, 'output');
+        if (!fs.existsSync(outputDir)) return;
+        
+        fs.readdirSync(outputDir).forEach(file => {
+            try {
+                const filePath = path.join(outputDir, file);
+                const stats = fs.statSync(filePath);
+                const now = new Date().getTime();
+                const fileAge = now - new Date(stats.ctime).getTime();
+                const twentyFourHours = 24 * 60 * 60 * 1000;
+                
+                if (fileAge > twentyFourHours) {
+                    fs.unlinkSync(filePath);
+                    console.log(`[CLEANUP] Deleted old output: ${file}`);
+                }
+            } catch (err) {}
+        });
+    } catch (e) {
+        console.error('[CLEANUP] Error during cleanup:', e);
+    }
+}, 60 * 60 * 1000);
+
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
