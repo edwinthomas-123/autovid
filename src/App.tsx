@@ -542,6 +542,16 @@ function App() {
             History
           </div>
 
+          {userEmail === 'edwinmoothedan2006@gmail.com' && (
+            <div 
+              className={`nav-item ${activeMenu === 'API_KEYS' ? 'active' : ''}`}
+              onClick={() => setActiveMenu('API_KEYS')}
+            >
+              Admin Settings
+            </div>
+          )}
+
+
           <div style={{ marginTop: 'auto', paddingTop: '2rem', borderTop: '1px solid #f1f5f9' }}>
             {userEmail && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 1.25rem', marginBottom: '1rem' }}>
@@ -4530,12 +4540,7 @@ function AIScout({ geminiKey, elevenLabsKey, onGoToKeys, activeJobs, addJob, cle
       </div>
 
       <div className="card-container" style={{maxWidth: '900px'}}>
-        {!geminiKey && (
-          <div style={{background: '#fff7ed', border: '1px solid #ffedd5', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-            <span style={{fontSize: '0.875rem', color: '#9a3412'}}>Gemini API Key is required for analysis.</span>
-            <button className="btn" onClick={onGoToKeys}>Settings</button>
-          </div>
-        )}
+
 
         {error && (
           <div style={{background: '#fee2e2', color: '#dc2626', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1.5rem', fontSize: '0.85rem', position: 'relative'}}>
