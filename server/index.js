@@ -12,7 +12,7 @@ const axios = require('axios');
 
 require('dotenv').config();
 
-const BASE_URL = process.env.BASE_URL || 'https://wellvid.tech';
+const BASE_URL = process.env.BASE_URL || (process.platform === 'win32' ? 'http://localhost:3001' : 'https://wellvid.tech');
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
@@ -747,8 +747,9 @@ CRITICAL: Return ONLY a valid JSON object matching this structure exactly:
 // ─────────────────────────────────────────────
 // POST /api/clip  (existing Clipper feature)
 // ─────────────────────────────────────────────
-app.post('/api/clip', async (req, res) => {
-  const { url, style, count, captionSize, captionPosition } = req.body;
+app.post('/api/render-short', async (req, res) => {
+    console.log('🚨 [RENDER] BUTTON CLICKED! Received request for short video.');
+    const { topic, script, voiceId, style, backgroundVideoUrl, overlayImage, clipCount, captionSize, captionPosition } = req.body;
   if (!url) return res.status(400).json({ error: 'URL is required' });
   const clipCount = parseInt(count) || 1;
 

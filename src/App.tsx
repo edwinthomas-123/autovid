@@ -13,7 +13,7 @@ const captionStyles = [
 ];
 
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://127.0.0.1:3001'
+  ? 'http://localhost:3001'
   : 'https://wellvid.tech';
 
 const voices = [

@@ -243,7 +243,8 @@ async function synthesizeEdge(text, voiceId, outputPath, options = {}) {
     return new Promise((resolve, reject) => {
         const { rate, volume, pitch } = { ...voice.settings, ...options };
         const args = [pythonScript, text, voice.voice, outputPath, rate || '+0%', volume || '+0%', pitch || '+0Hz'];
-        const process = spawn('python3', args);
+        const pyCmd = process.platform === 'win32' ? 'python' : 'python3';
+        const process = spawn(pyCmd, args);
         
         let output = '';
         process.stdout.on('data', d => output += d.toString());
@@ -266,7 +267,8 @@ async function synthesizeKokoro(text, voiceId, outputPath, options = {}) {
     return new Promise((resolve, reject) => {
         const { speed, lang } = { ...voice.settings, ...options };
         const args = [pythonScript, text, voice.voice, outputPath, speed.toString(), lang || 'en-us'];
-        const process = spawn('python3', args);
+        const pyCmd = process.platform === 'win32' ? 'python' : 'python3';
+        const process = spawn(pyCmd, args);
         
         let output = '';
         process.stdout.on('data', d => output += d.toString());
