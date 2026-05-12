@@ -1012,8 +1012,9 @@ Aim for 800-1200 words. Make it engaging, informative, and flow naturally as nar
 app.post(['/api/long-video', '/api/short-video'], async (req, res) => {
   const isShort = req.path === '/api/short-video';
   const { script, voice, captionStyle, topic, isTest, captionSize = 38, captionPosition = 'center' } = req.body;
-  const elevenLabsKey = keysDb.elevenLabsKey || process.env.ELEVENLABS_API_KEY || req.body.elevenLabsKey;
-  const pexelsKey = keysDb.pexelsKey || process.env.PEXELS_API_KEY || req.body.pexelsKey;
+  const geminiKey = req.body.geminiKey || keysDb.geminiKey || process.env.GEMINI_API_KEY;
+  const elevenLabsKey = req.body.elevenLabsKey || keysDb.elevenLabsKey || process.env.ELEVENLABS_API_KEY || 'sk_eb749e2f22c96c9af0ab15df0b4791ad782764ea9f4311d4';
+  const pexelsKey = req.body.pexelsKey || keysDb.pexelsKey || process.env.PEXELS_API_KEY || 'hNOwvi53vUHCrAgGNzw92UlYfx7gsYtgdOoEoN0dzOjS9j4j1Ohqf4FJ';
   const orientation = isShort ? 'portrait' : (req.body.orientation || 'landscape');
   
   // Cache check for 'tajmahal' - only if explicitly requested or in a 'fast' mode
@@ -1351,8 +1352,9 @@ app.post(['/api/long-video', '/api/short-video'], async (req, res) => {
 // ─────────────────────────────────────────────
 app.post('/api/talking-head', async (req, res) => {
   const { script, voice, captionStyle, topic, captionSize = 38, captionPosition = 'center', avatarId = 0 } = req.body;
-  const elevenLabsKey = keysDb.elevenLabsKey || process.env.ELEVENLABS_API_KEY || req.body.elevenLabsKey;
-  const pexelsKey = keysDb.pexelsKey || process.env.PEXELS_API_KEY || req.body.pexelsKey;
+  const geminiKey = req.body.geminiKey || keysDb.geminiKey || process.env.GEMINI_API_KEY;
+  const elevenLabsKey = req.body.elevenLabsKey || keysDb.elevenLabsKey || process.env.ELEVENLABS_API_KEY || 'sk_eb749e2f22c96c9af0ab15df0b4791ad782764ea9f4311d4';
+  const pexelsKey = req.body.pexelsKey || keysDb.pexelsKey || process.env.PEXELS_API_KEY || 'hNOwvi53vUHCrAgGNzw92UlYfx7gsYtgdOoEoN0dzOjS9j4j1Ohqf4FJ';
   
   if (!script)
     return res.status(400).json({ error: 'script is required' });
@@ -1535,8 +1537,8 @@ app.post('/api/talking-head', async (req, res) => {
 
 app.post('/api/talking-head/generate-visuals', async (req, res) => {
   const { script, type = 'image' } = req.body;
-  const pexelsKey = keysDb.pexelsKey || process.env.PEXELS_API_KEY || req.body.pexelsKey;
-  if (!script || !pexelsKey) return res.status(400).json({ error: 'script and pexelsKey required' });
+  const pexelsKey = req.body.pexelsKey || keysDb.pexelsKey || process.env.PEXELS_API_KEY || 'hNOwvi53vUHCrAgGNzw92UlYfx7gsYtgdOoEoN0dzOjS9j4j1Ohqf4FJ';
+  if (!script) return res.status(400).json({ error: 'script required' });
 
   try {
     const words = script.split(/\s+/).filter(w => w.trim().length > 0);
@@ -2116,8 +2118,8 @@ app.get('/api/scout/tools', (req, res) => {
 
 app.post('/api/scout/run', async (req, res) => {
     const { url, voice } = req.body;
-    const geminiKey = keysDb.geminiKey || process.env.GEMINI_API_KEY || req.body.geminiKey;
-    const elevenLabsKey = keysDb.elevenLabsKey || process.env.ELEVENLABS_API_KEY || req.body.elevenLabsKey;
+    const geminiKey = req.body.geminiKey || keysDb.geminiKey || process.env.GEMINI_API_KEY;
+    const elevenLabsKey = req.body.elevenLabsKey || keysDb.elevenLabsKey || process.env.ELEVENLABS_API_KEY || 'sk_eb749e2f22c96c9af0ab15df0b4791ad782764ea9f4311d4';
     if (!url || !geminiKey) return res.status(400).json({ error: 'URL and Gemini Key required' });
 
     const jobId = createJob('AI_SCOUT', { url });
