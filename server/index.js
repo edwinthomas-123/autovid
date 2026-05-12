@@ -1666,6 +1666,16 @@ app.post('/api/generate-image-gemini', async (req, res) => {
 });
 
 
+app.post('/api/automation/sync-background', async (req, res) => {
+    try {
+        const automationEngine = require('./automation_engine');
+        await automationEngine.syncBackgroundClips();
+        res.json({ success: true, message: 'Sync started! Background clips are being downloaded.' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // Get connected accounts
 app.get('/api/auth/accounts', (req, res) => {
     const accounts = {};

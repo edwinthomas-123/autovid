@@ -2204,9 +2204,30 @@ function ShortVideo({
             <div style={{marginBottom: '3rem'}}>
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
                 <h3 className="section-title" style={{margin: 0, fontSize: '1rem'}}>{videoType === 'TALKING_HEAD' ? 'Image Overlays' : 'Visual Clips'}</h3>
-                <button className="btn" style={{fontSize: '0.7rem'}} onClick={() => handleGenerateVisuals()} disabled={isGeneratingVisuals}>
-                  {isGeneratingVisuals ? 'Refreshing...' : 'Refresh All Clips'}
-                </button>
+                <div style={{display: 'flex', gap: '0.5rem'}}>
+                  <button 
+                    className="btn" 
+                    style={{fontSize: '0.7rem', color: 'var(--primary)', borderColor: 'var(--primary)'}} 
+                    onClick={async (e) => {
+                      const btn = e.currentTarget;
+                      const original = btn.innerText;
+                      btn.innerText = 'Syncing...';
+                      try {
+                        const res = await fetch(`${API_BASE_URL}/api/automation/sync-background`, { method: 'POST' });
+                        const data = await res.json();
+                        alert(data.message || 'Sync complete! If you still see the error, refresh Step 3.');
+                      } catch (err) {
+                        alert('Sync failed. Is your Google account connected?');
+                      }
+                      btn.innerText = original;
+                    }}
+                  >
+                    Sync Drive
+                  </button>
+                  <button className="btn" style={{fontSize: '0.7rem'}} onClick={() => handleGenerateVisuals()} disabled={isGeneratingVisuals}>
+                    {isGeneratingVisuals ? 'Refreshing...' : 'Refresh All Clips'}
+                  </button>
+                </div>
               </div>
 
               {videoType === 'TALKING_HEAD' && (
