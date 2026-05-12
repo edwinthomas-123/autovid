@@ -2194,11 +2194,6 @@ function ShortVideo({
                 <div style={{display: 'flex', gap: '0.5rem'}}>
                   <button 
                     className="btn" 
-                    style={{fontSize: '0.7rem', color: 'var(--primary)', borderColor: 'var(--primary)'}} 
-                    onClick={async (e) => {
-                      const btn = e.currentTarget;
-                  <button 
-                    className="btn" 
                     style={{fontSize: '0.7rem', background: 'var(--dark)', color: 'white'}} 
                     onClick={() => {
                       const input = document.createElement('input');
@@ -2214,9 +2209,6 @@ function ShortVideo({
                           formData.append('clips', files[i]);
                         }
                         
-                        const btn = e.target;
-                        alert('Uploading ' + files.length + ' videos... Please wait.');
-                        
                         try {
                           const res = await fetch(`${API_BASE_URL}/api/upload-background`, {
                             method: 'POST',
@@ -2225,7 +2217,7 @@ function ShortVideo({
                           const data = await res.json();
                           alert(data.message || 'Upload complete!');
                         } catch (err) {
-                          alert('Upload failed. Try smaller files.');
+                          alert('Upload failed.');
                         }
                       };
                       input.click();

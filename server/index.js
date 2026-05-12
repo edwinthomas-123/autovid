@@ -160,19 +160,20 @@ cron.schedule('0 * * * *', () => {
     // Also cleanup temp_ directories
     const rootFiles = fs.readdirSync(__dirname);
     rootFiles.forEach(f => {
-        if (f.startsWith('temp_') && fs.statSync(path.join(__dirname, f)).isDirectory()) {
-            dirs.push(path.join(__dirname, f));
+        const fullPath = path.join(__dirname, f);
+        if (f.startsWith('temp_') && fs.existsSync(fullPath) && fs.statSync(fullPath).isDirectory()) {
+            dirs.push(fullPath);
         }
     });
 
     const now = Date.now();
-    const expiry = 24 * 60 * 60 * 1000; // 24 hours
+    const expiry = 30 * 24 * 60 * 60 * 1000; // 30 days expiry for local safety
 
     dirs.forEach(dir => {
         if (!fs.existsSync(dir)) return;
         
         // If it's a temp directory, check the directory itself
-        if (dir.includes('/temp_')) {
+        if (path.basename(dir).startsWith('temp_')) {
             const stats = fs.statSync(dir);
             if (now - stats.mtimeMs > expiry) {
                 console.log(`[JANITOR] Removing old temp dir: ${dir}`);
@@ -182,9 +183,11 @@ cron.schedule('0 * * * *', () => {
         }
 
         // Check files inside the directory
+        if (!fs.existsSync(dir)) return;
         const files = fs.readdirSync(dir);
         files.forEach(file => {
             const filePath = path.join(dir, file);
+            if (!fs.existsSync(filePath)) return;
             const stats = fs.statSync(filePath);
             if (now - stats.mtimeMs > expiry) {
                 console.log(`[JANITOR] Deleting old file: ${file}`);
