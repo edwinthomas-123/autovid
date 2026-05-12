@@ -1669,8 +1669,11 @@ app.post('/api/generate-image-gemini', async (req, res) => {
 app.post('/api/automation/sync-background', async (req, res) => {
     try {
         const automationEngine = require('./automation_engine');
-        await automationEngine.syncBackgroundClips();
-        res.json({ success: true, message: 'Sync started! Background clips are being downloaded.' });
+        const stats = await automationEngine.syncBackgroundClips();
+        res.json({ 
+            success: true, 
+            message: stats ? `Success! Found ${stats.found} videos on your Drive.` : 'Sync started in the background.' 
+        });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }

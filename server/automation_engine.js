@@ -101,9 +101,11 @@ class AutomationEngine {
                     await this.downloadDriveFile(auth, file.id, localPath);
                 }
             }
-            this.addLog('Background clips sync complete.', 'success');
+            this.addLog(`Background clips sync complete. Found ${files.length} videos.`, 'success');
+            return { found: files.length };
         } catch (error) {
             this.addLog(`Sync Error: ${error.message}`, 'error');
+            return { found: 0, error: error.message };
         }
     }
 
